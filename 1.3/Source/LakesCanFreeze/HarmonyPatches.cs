@@ -58,7 +58,7 @@ namespace LCF
                 float rectY = num;
                 int ind = comp.map.cellIndices.CellToIndex(cell);
 
-                float ice = comp.iceGrid[ind];
+                float ice = comp.IceGrid[ind];
                 if (ice > 0)
                 {
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Ice depth " + Math.Round(ice, 2).ToString());
