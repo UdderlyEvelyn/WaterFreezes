@@ -59,9 +59,21 @@ namespace LCF
                 int ind = comp.map.cellIndices.CellToIndex(cell);
 
                 float ice = comp.IceGrid[ind];
+                float water = comp.WaterGrid[ind];
+                string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
                 if (ice > 0)
                 {
-                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Ice depth " + Math.Round(ice, 2).ToString());
+                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Ice depth " + Math.Round(ice, 4).ToString());
+                    rectY += 19f;
+                }
+                if (water > 0)
+                {
+                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Water depth " + Math.Round(water, 4).ToString());
+                    rectY += 19f;
+                }
+                if (naturalWaterLabel != null)
+                { 
+                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Natural water tile " + naturalWaterLabel);
                     rectY += 19f;
                 }
 
