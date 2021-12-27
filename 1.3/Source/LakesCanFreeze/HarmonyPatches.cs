@@ -18,6 +18,27 @@ namespace LCF
 
     //[HarmonyPatch(typeof(GenStep_ElevationFertility), "Generate")]
 
+    [HarmonyPatch(typeof(TerrainGrid), "SetTerrain")]
+    public class SetTerrainUpdateHook
+    {
+        private static Dictionary<int, MapComponent_LakesCanFreeze> compCachePerMap;
+
+        internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map)
+        {
+            bool deep = newTerr == TerrainDefOf.WaterDeep;
+            bool shallow = newTerr == TerrainDefOf.WaterShallow;
+            if (!deep && !shallow) //If it's not water..
+                return; //Don't care.
+            MapComponent_LakesCanFreeze comp; //Set up var.
+            if (!compCachePerMap.ContainsKey(___map.uniqueID)) //If not cached..
+                compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_LakesCanFreeze>()); //Get and cache.
+            else
+                comp = compCachePerMap[___map.uniqueID]; //Retrieve from cache.
+            comp.
+        }
+    }
+
+
     [HarmonyPatch(typeof(MouseoverReadout), "MouseoverReadoutOnGUI")]
     public class MouseoverReadoutOnGUITranspiler
     {
@@ -58,8 +79,8 @@ namespace LCF
                 float rectY = num;
                 int ind = comp.map.cellIndices.CellToIndex(cell);
 
-                float ice = comp.IceGrid[ind];
-                float water = comp.WaterGrid[ind];
+                float ice = comp.IceDepthGrid[ind];
+                float water = comp.WaterDepthGrid[ind];
                 string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
                 if (ice > 0)
                 {
