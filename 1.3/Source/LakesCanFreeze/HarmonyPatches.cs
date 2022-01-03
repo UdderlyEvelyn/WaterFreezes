@@ -39,7 +39,8 @@ namespace LCF
                 if (newTerr == TerrainDefOf.WaterDeep || newTerr == TerrainDefOf.WaterShallow) //If it's becoming water..
                     comp.AllWaterTerrainGrid[i] = newTerr;
                 else //It's water and becoming not water..
-                    comp.AllWaterTerrainGrid[i] = null;
+                    if (!(comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep || comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow)) //It's not natural water..
+                        comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
             }
         }
     }

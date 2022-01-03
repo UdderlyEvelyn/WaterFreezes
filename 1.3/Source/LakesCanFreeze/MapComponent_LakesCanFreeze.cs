@@ -153,6 +153,7 @@ namespace LCF
 				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
+			Log.Message("[LakesCanFreeze] Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
 			return currentTerrain == def || underTerrain == def || AllWaterTerrainGrid[i] == def;
 		}
 
@@ -220,9 +221,10 @@ namespace LCF
 					}
 					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) * // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
 						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
-						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) * //If it's deep water right now, slow it down more.
-						(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
+						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) //* //If it's deep water right now, slow it down more.
+						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
+					Log.Message("[LakesCanFreeze] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					IceDepthGrid[i] += change; //Ice goes up..
 					if (IsShallowWater(i, map, currentTerrain, underTerrain))
 						if (IceDepthGrid[i] > maxIceShallow)
@@ -233,6 +235,7 @@ namespace LCF
 					WaterDepthGrid[i] -= change; //Water depth goes down..
 					if (WaterDepthGrid[i] < 0)
 						WaterDepthGrid[i] = 0;
+					Log.Message("[LakesCanFreeze] For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 				}
 			}
 			else if (temperature > 0) //Temperature is above zero..
@@ -242,8 +245,8 @@ namespace LCF
 					var change = temperature / (thawingMultiplier + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a multiplier which takes into account surrounding terrain.
 						(IceDepthGrid[i] / 100) * //Slow thawing further by ice thickness per 100 ice.
 						(currentTerrain == IceDefs.LCF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
-						(currentTerrain == IceDefs.LCF_LakeIce ? .75f : 1f) * //If it's regular ice right now, slow it down a little less than thick.
-						(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
+						(currentTerrain == IceDefs.LCF_LakeIce ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
+						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] -= change; //Ice goes down..
 					if (IceDepthGrid[i] < 0)
