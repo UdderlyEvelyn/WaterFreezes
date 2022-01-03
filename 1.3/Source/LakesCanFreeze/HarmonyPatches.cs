@@ -21,23 +21,28 @@ namespace LCF
     [HarmonyPatch(typeof(TerrainGrid), "SetTerrain")]
     public class SetTerrainUpdateHook
     {
-        private static Dictionary<int, MapComponent_LakesCanFreeze> compCachePerMap;
+        private static Dictionary<int, MapComponent_LakesCanFreeze> compCachePerMap = new Dictionary<int, MapComponent_LakesCanFreeze>();
 
-        internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map)
+        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map)
         {
-            bool deep = newTerr == TerrainDefOf.WaterDeep;
-            bool shallow = newTerr == TerrainDefOf.WaterShallow;
-            if (!deep && !shallow) //If it's not water..
-                return; //Don't care.
-            MapComponent_LakesCanFreeze comp; //Set up var.
-            if (!compCachePerMap.ContainsKey(___map.uniqueID)) //If not cached..
-                compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_LakesCanFreeze>()); //Get and cache.
-            else
-                comp = compCachePerMap[___map.uniqueID]; //Retrieve from cache.
-            comp.
+            int i = ___map.cellIndices.CellToIndex(c);
+            var oldTerrain = ___map.terrainGrid.TerrainAt(i);
+            if (oldTerrain == newTerr) //If we're not actually changing anything..
+                return; //Who cares?
+            if (oldTerrain == TerrainDefOf.WaterDeep || oldTerrain == TerrainDefOf.WaterShallow) //If it's the freezable type of water..
+            {
+                MapComponent_LakesCanFreeze comp; //Set up var.
+                if (!compCachePerMap.ContainsKey(___map.uniqueID)) //If not cached..
+                    compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_LakesCanFreeze>()); //Get and cache.
+                else
+                    comp = compCachePerMap[___map.uniqueID]; //Retrieve from cache.
+                if (newTerr == TerrainDefOf.WaterDeep || newTerr == TerrainDefOf.WaterShallow) //If it's becoming water..
+                    comp.AllWaterTerrainGrid[i] = newTerr;
+                else //It's water and becoming not water..
+                    comp.AllWaterTerrainGrid[i] = null;
+            }
         }
     }
-
 
     [HarmonyPatch(typeof(MouseoverReadout), "MouseoverReadoutOnGUI")]
     public class MouseoverReadoutOnGUITranspiler
@@ -71,6 +76,7 @@ namespace LCF
                 }
             }
         }
+
         public static float MakeLabelIfRequired(IntVec3 cell, Vector2 BotLeft, float num)
         {
             var comp = Find.CurrentMap.GetComponent<MapComponent_LakesCanFreeze>();
@@ -82,6 +88,7 @@ namespace LCF
                 float ice = comp.IceDepthGrid[ind];
                 float water = comp.WaterDepthGrid[ind];
                 string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
+                float pseudoElevation = comp.PseudoWaterElevationGrid[ind];
                 if (ice > 0)
                 {
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Ice depth " + Math.Round(ice, 4).ToString());
@@ -97,7 +104,11 @@ namespace LCF
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Natural water tile " + naturalWaterLabel);
                     rectY += 19f;
                 }
-
+                //if (pseudoElevation > 0)
+                {
+                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Elevation " + pseudoElevation.ToString());
+                    rectY += 19f;
+                }
                 return rectY;
             }
             return num;

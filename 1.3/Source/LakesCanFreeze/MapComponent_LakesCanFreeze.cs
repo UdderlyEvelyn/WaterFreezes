@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RimWorld;
 using Verse;
 using System.Runtime.CompilerServices;
@@ -24,7 +21,7 @@ namespace LCF
 		float thresholdThickIce = 200;
 		int freezingMultiplier = 4;
 		int thawingMultiplier = 2;
-		float iceRate = 2500;
+		float iceRate = 1;
 		float maxWaterDeep = 400;
 		float maxWaterShallow = 100;
 		float maxIceDeep = 400;
@@ -42,7 +39,7 @@ namespace LCF
 
 		public void Initialize()
         {
-			Log.Message("[Lakes Can Freeze] Initializing..");
+			Log.Message("[LakesCanFreeze] Initializing..");
 			//if (map.AgeInDays == 0)
 			//{
 			//	Map fakeMap = new Map() { uniqueID = map.uniqueID, info = map.info, cellIndices = map.cellIndices }; //Super secret fake map.
@@ -56,10 +53,13 @@ namespace LCF
 			//	MapGenerator.mapBeingGenerated = map; //Put it back, don't be rude!
 			//}
 			if (WaterDepthGrid == null) //If we have no water depth grid..
+			{
+				Log.Message("[LakesCanFreeze] Instantiating water depth grid..");
 				WaterDepthGrid = new float[map.cellIndices.NumGridCells]; //Instantiate it.
+			}
 			if (NaturalWaterTerrainGrid == null) //If we haven't got a waterGrid loaded from the save file, make one.
 			{
-				Log.Message("[LakesCanFreeze] Generating Natural Water Grid..");
+				Log.Message("[LakesCanFreeze] Generating natural water grid and populating water depth grid..");
 				NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
 				for (int i = 0; i < map.cellIndices.NumGridCells; i++)
 				{
@@ -78,11 +78,18 @@ namespace LCF
 				}
 			}
 			if (AllWaterTerrainGrid == null) //If we have no all-water terrain grid..
+			{
+				Log.Message("[LakesCanFreeze] Cloning natural water grid into all water grid..");
 				AllWaterTerrainGrid = (TerrainDef[])NaturalWaterTerrainGrid.Clone(); //Instantiate it to content of the natural water array for starters.
+			}
 			if (IceDepthGrid == null)
+			{
+				Log.Message("[LakesCanFreeze] Instantiating ice depth grid..");
 				IceDepthGrid = new float[map.cellIndices.NumGridCells];
+			}
 			if (PseudoWaterElevationGrid == null)
 			{
+				Log.Message("[LakesCanFreeze] Generating pseudo water elevation grid..");
 				PseudoWaterElevationGrid = new float[map.cellIndices.NumGridCells];
 				UpdatePseudoWaterElevationGrid();
 			}
@@ -113,31 +120,29 @@ namespace LCF
 			}
 		}
 
-		//this only does natural rn needs to do non-natural
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdatePseudoWaterElevationGrid()
         {
-			for (int i = 0; i <= NaturalWaterTerrainGrid.Length; i++)
-				if (NaturalWaterTerrainGrid[i] != null)
+			Log.Message("[LakesCanFreeze] Updating pseudo water elevation grid..");
+			for (int i = 0; i < AllWaterTerrainGrid.Length; i++)
+				if (AllWaterTerrainGrid[i] != null)
 					UpdatePseudoWaterElevationGridForCell(map.cellIndices.IndexToCell(i));
         }
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdatePseudoWaterElevationGridForCell(IntVec3 cell)
         {
-			var i = map.cellIndices.CellToIndex(cell);
-			var pseudoElevationScore = 8; //Default to 1 per direction.
-			for (int x = cell.x - 1; x <= cell.x + 1; x++)
-				for (int y = cell.y - 1; y <= cell.y + 1; y++)
-				{
-					if (x == cell.x && y == cell.y) //If it's the cell itself..
-						continue; //Don't.
-					var scanCell = new IntVec3(x, y, 0);
-					var scanTerrain = scanCell.GetTerrain(map);
-					var scanUnderTerrain = map.terrainGrid.UnderTerrainAt(scanCell);
-					if (IsDeepWater(i, map, scanTerrain, scanUnderTerrain))
-						pseudoElevationScore += 2; //Deeper.
-					else if (!IsShallowWater(i, map, scanTerrain, scanUnderTerrain)) //If it's anything else besides shallow water..
-						pseudoElevationScore -= 1; //Shallower.
-				}
+			int i = map.cellIndices.CellToIndex(cell);
+			var adjacentCells = GenAdjFast.AdjacentCells8Way(cell);
+			float pseudoElevationScore = 0;
+			for (int j = 0; j < adjacentCells.Count; j++)
+			{
+				int adjacentCellIndex = map.cellIndices.CellToIndex(adjacentCells[j]);
+				if (adjacentCellIndex < 0 || adjacentCellIndex >= map.terrainGrid.topGrid.Length) //If it's a negative index or it's a larger index than the map's grid length (faster to get topGrid.Length than use property on the cellIndices).
+					continue; //Skip it.
+				if (AllWaterTerrainGrid[adjacentCellIndex] == null) //If it's land..
+					pseudoElevationScore += 1; //+4 for each land
+			}
 			PseudoWaterElevationGrid[i] = pseudoElevationScore;
 		}
 
@@ -145,7 +150,7 @@ namespace LCF
 		public bool IsTerrainDef(int i, Map map, TerrainDef def, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
 		{
 			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
+				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			return currentTerrain == def || underTerrain == def || AllWaterTerrainGrid[i] == def;
@@ -168,7 +173,7 @@ namespace LCF
 		public bool IsLakeIce(int i, Map map, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
 		{
 			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
+				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			return IsTerrainDef(i, map, IceDefs.LCF_LakeIceThin, currentTerrain, underTerrain) || 
@@ -180,13 +185,14 @@ namespace LCF
 		public bool IsWater(int i, Map map, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
 		{
 			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
+				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			return IsShallowWater(i, map, currentTerrain, underTerrain) ||
 				   IsDeepWater(i, map, currentTerrain, underTerrain);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdateIceForTemperature(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
 		{
 			var temperature = GenTemperature.GetTemperatureForCell(cell, map);
@@ -197,9 +203,25 @@ namespace LCF
 			{
 				if (WaterDepthGrid[i] > 0)
 				{
-					var change = -temperature * freezingMultiplier * //Based on temperature but sped up by a multiplier.
-						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) * //If it's deep water right now, slow it down more.
-						(.67f + (.33f * Rand.Value)) //33% of the rate is variable for flavor.
+					if (PseudoWaterElevationGrid[i] == 0) //if this isn't one of the edge cells..
+					{
+						//If none of the adjacent cells have ice..
+						if (!GenAdjFast.AdjacentCells8Way(cell).Any(adjacentCell =>
+						{
+							int adjacentCellIndex = map.cellIndices.CellToIndex(adjacentCell);
+							if (adjacentCellIndex < 0 || adjacentCellIndex >= map.terrainGrid.topGrid.Length) //If it's a negative index or it's a larger index than the map's grid length (faster to get topGrid.Length than use property on the cellIndices).
+								return false;
+							return IceDepthGrid[adjacentCellIndex] > 0;
+						}))
+						{
+							Log.Message("[LakesCanFreeze] Skipping cell " + cell.ToString() + " because it has no adjacent ice yet (and it isn't adjacent to land).");
+							return; //We aren't going to freeze before there's ice adjacent to us.
+						}
+					}
+					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
+						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
+						//(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) * //If it's deep water right now, slow it down more.
+						//(.67f + (.33f * Rand.Value)) //33% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] += change; //Ice goes up..
 					if (IsShallowWater(i, map, currentTerrain, underTerrain))
@@ -217,10 +239,11 @@ namespace LCF
 			{
 				if (IceDepthGrid[i] > 0)
 				{
-					var change = temperature / thawingMultiplier * //Based on temperature but slowed down by a multiplier.
-						(currentTerrain == IceDefs.LCF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
-						(currentTerrain == IceDefs.LCF_LakeIce ? .75f : 1f) * //If it's regular ice right now, slow it down a little less than thick.
-						(.67f + (.33f * Rand.Value)) //33% of the rate is variable for flavor.
+					var change = temperature / (thawingMultiplier + PseudoWaterElevationGrid[i]) // //Based on temperature but slowed down by a multiplier which takes into account surrounding terrain.
+						//(IceDepthGrid[i] / 100) //* //Slow thawing further by ice thickness per 100 ice.
+						//(currentTerrain == IceDefs.LCF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
+						//(currentTerrain == IceDefs.LCF_LakeIce ? .75f : 1f) * //If it's regular ice right now, slow it down a little less than thick.
+						//(.67f + (.33f * Rand.Value)) //33% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] -= change; //Ice goes down..
 					if (IceDepthGrid[i] < 0)
@@ -237,6 +260,7 @@ namespace LCF
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdateIceStage(IntVec3 cell, TerrainDef currentTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);
@@ -257,6 +281,7 @@ namespace LCF
 				map.terrainGrid.SetTerrain(cell, IceDefs.LCF_LakeIceThick);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ThawCell(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);
@@ -360,6 +385,7 @@ namespace LCF
 			List<TerrainDef> allWaterTerrainGridList = new List<TerrainDef>();
 			List<float> iceDepthGridList = new List<float>();
 			List<float> waterDepthGridList = new List<float>();
+			List<float> pseudoElevationGridList = new List<float>();
 			if (Scribe.mode == LoadSaveMode.Saving)
             {
 				if (AllWaterTerrainGrid != null)
@@ -370,17 +396,21 @@ namespace LCF
 					iceDepthGridList = IceDepthGrid.ToList();
 				if (WaterDepthGrid != null)
 					waterDepthGridList = WaterDepthGrid.ToList();
+				if (PseudoWaterElevationGrid != null)
+					pseudoElevationGridList = PseudoWaterElevationGrid.ToList();
             }
 			Scribe_Collections.Look(ref naturalWaterTerrainGridList, "NaturalWaterTerrainGrid");
 			Scribe_Collections.Look(ref allWaterTerrainGridList, "AllWaterTerrainGrid");
 			Scribe_Collections.Look(ref iceDepthGridList, "IceDepthGrid");
 			Scribe_Collections.Look(ref waterDepthGridList, "WaterDepthGrid");
+			Scribe_Collections.Look(ref pseudoElevationGridList, "PseudoElevationGrid");
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
 				NaturalWaterTerrainGrid = naturalWaterTerrainGridList.ToArray();
 				AllWaterTerrainGrid = allWaterTerrainGridList.ToArray();
 				IceDepthGrid = iceDepthGridList.ToArray();
 				WaterDepthGrid = waterDepthGridList.ToArray();
+				PseudoWaterElevationGrid = pseudoElevationGridList.ToArray();
 			}
 			base.ExposeData();
         }
