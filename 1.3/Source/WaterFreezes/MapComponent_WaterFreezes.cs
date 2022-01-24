@@ -4,7 +4,7 @@ using RimWorld;
 using Verse;
 using System.Runtime.CompilerServices;
 
-namespace LCF
+namespace WF
 {
     public class MapComponent_WaterFreezes : MapComponent
     {
@@ -14,8 +14,6 @@ namespace LCF
 		public float[] IceDepthGrid;
 		public float[] WaterDepthGrid;
 		public float[] PseudoWaterElevationGrid;
-		//MapGenFloatGrid elevation;
-		//MapGenFloatGrid fertility;
 		float thresholdThinIce = 25;
 		float thresholdIce = 100;
 		float thresholdThickIce = 200;
@@ -40,18 +38,6 @@ namespace LCF
 		public void Initialize()
         {
 			Log.Message("[WaterFreezes] Initializing..");
-			//if (map.AgeInDays == 0)
-			//{
-			//	Map fakeMap = new Map() { uniqueID = map.uniqueID, info = map.info, cellIndices = map.cellIndices }; //Super secret fake map.
-			//	MapGenerator.mapBeingGenerated = fakeMap;
-			//	RockNoises.Init(fakeMap);
-			//	new GenStep_ElevationFertility().Generate(fakeMap, new GenStepParams()); //Parms aren't used.
-			//	RockNoises.Reset();
-			//	//Preserve these, when another map is gen'd they'll be discarded!
-			//	elevation = MapGenerator.Elevation;
-			//	fertility = MapGenerator.Fertility;
-			//	MapGenerator.mapBeingGenerated = map; //Put it back, don't be rude!
-			//}
 			if (WaterDepthGrid == null) //If we have no water depth grid..
 			{
 				Log.Message("[WaterFreezes] Instantiating water depth grid..");
@@ -153,7 +139,7 @@ namespace LCF
 				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			Log.Message("[WaterFreezes] Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
+			//Log.Message("[WaterFreezes] Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
 			return currentTerrain == def || underTerrain == def || AllWaterTerrainGrid[i] == def;
 		}
 
@@ -224,7 +210,7 @@ namespace LCF
 						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) //* //If it's deep water right now, slow it down more.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
-					Log.Message("[WaterFreezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
+					//Log.Message("[WaterFreezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					IceDepthGrid[i] += change; //Ice goes up..
 					if (IsShallowWater(i, map, currentTerrain, underTerrain))
 						if (IceDepthGrid[i] > maxIceShallow)
@@ -235,7 +221,7 @@ namespace LCF
 					WaterDepthGrid[i] -= change; //Water depth goes down..
 					if (WaterDepthGrid[i] < 0)
 						WaterDepthGrid[i] = 0;
-					Log.Message("[WaterFreezes] For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
+					//Log.Message("[WaterFreezes] For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 				}
 			}
 			else if (temperature > 0) //Temperature is above zero..
@@ -384,31 +370,35 @@ namespace LCF
 
         public override void ExposeData()
 		{
-			List<TerrainDef> naturalWaterTerrainGridList = new List<TerrainDef>();
-			List<TerrainDef> allWaterTerrainGridList = new List<TerrainDef>();
 			List<float> iceDepthGridList = new List<float>();
 			List<float> waterDepthGridList = new List<float>();
 			List<float> pseudoElevationGridList = new List<float>();
 			if (Scribe.mode == LoadSaveMode.Saving)
-            {
+			{
+				List<string> naturalWaterTerrainGridStringList = new List<string>();
+				List<string> allWaterTerrainGridStringList = new List<string>();
 				if (AllWaterTerrainGrid != null)
-					allWaterTerrainGridList = AllWaterTerrainGrid.ToList();
+					allWaterTerrainGridStringList = AllWaterTerrainGrid.Select(def => def == null ? "null" : def.defName).ToList();
 				if (NaturalWaterTerrainGrid != null)
-					naturalWaterTerrainGridList = NaturalWaterTerrainGrid.ToList();
+					naturalWaterTerrainGridStringList = NaturalWaterTerrainGrid.Select(def => def == null ? "null" : def.defName).ToList();
 				if (IceDepthGrid != null)
 					iceDepthGridList = IceDepthGrid.ToList();
 				if (WaterDepthGrid != null)
 					waterDepthGridList = WaterDepthGrid.ToList();
 				if (PseudoWaterElevationGrid != null)
 					pseudoElevationGridList = PseudoWaterElevationGrid.ToList();
+				Scribe_Collections.Look(ref naturalWaterTerrainGridStringList, "NaturalWaterTerrainGrid");
+				Scribe_Collections.Look(ref allWaterTerrainGridStringList, "AllWaterTerrainGrid");
             }
-			Scribe_Collections.Look(ref naturalWaterTerrainGridList, "NaturalWaterTerrainGrid");
-			Scribe_Collections.Look(ref allWaterTerrainGridList, "AllWaterTerrainGrid");
 			Scribe_Collections.Look(ref iceDepthGridList, "IceDepthGrid");
 			Scribe_Collections.Look(ref waterDepthGridList, "WaterDepthGrid");
 			Scribe_Collections.Look(ref pseudoElevationGridList, "PseudoElevationGrid");
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
+				List<TerrainDef> naturalWaterTerrainGridList = new List<TerrainDef>();
+				List<TerrainDef> allWaterTerrainGridList = new List<TerrainDef>();
+				Scribe_Collections.Look(ref naturalWaterTerrainGridList, "NaturalWaterTerrainGrid");
+				Scribe_Collections.Look(ref allWaterTerrainGridList, "AllWaterTerrainGrid");
 				NaturalWaterTerrainGrid = naturalWaterTerrainGridList.ToArray();
 				AllWaterTerrainGrid = allWaterTerrainGridList.ToArray();
 				IceDepthGrid = iceDepthGridList.ToArray();
@@ -417,58 +407,5 @@ namespace LCF
 			}
 			base.ExposeData();
         }
-
-        ////Copypasta from GenStep_Terrain due to PRIVATE.
-        //private TerrainDef TerrainFrom(IntVec3 c, Map map, float elevation, float fertility, RiverMaker river, bool preferSolid)
-        //{
-        //	TerrainDef terrainDef = null;
-        //	if (river != null)
-        //	{
-        //		terrainDef = river.TerrainAt(c, recordForValidation: true);
-        //	}
-        //	if (terrainDef == null && preferSolid)
-        //	{
-        //		return null; //Changed from RockDefAt, we don't care about rocks here.
-        //	}
-        //	TerrainDef terrainDef2 = BeachMaker.BeachTerrainAt(c, map.Biome);
-        //	if (terrainDef2 == TerrainDefOf.WaterOceanDeep)
-        //	{
-        //		return terrainDef2;
-        //	}
-        //	if (terrainDef != null && terrainDef.IsRiver)
-        //	{
-        //		return terrainDef;
-        //	}
-        //	if (terrainDef2 != null)
-        //	{
-        //		return terrainDef2;
-        //	}
-        //	if (terrainDef != null)
-        //	{
-        //		return terrainDef;
-        //	}
-        //	for (int i = 0; i < map.Biome.terrainPatchMakers.Count; i++)
-        //	{
-        //		terrainDef2 = map.Biome.terrainPatchMakers[i].TerrainAt(c, map, fertility);
-        //		if (terrainDef2 != null)
-        //		{
-        //			return terrainDef2;
-        //		}
-        //	}
-        //	if (elevation > 0.55f && elevation < 0.61f)
-        //	{
-        //		return null; //We don't care about gravel.
-        //	}
-        //	if (elevation >= 0.61f)
-        //	{
-        //		return null; //We don't care about your rocks.
-        //	}
-        //	terrainDef2 = TerrainThreshold.TerrainAtValue(map.Biome.terrainsByFertility, fertility);
-        //	if (terrainDef2 != null)
-        //	{
-        //		return terrainDef2;
-        //	}
-        //	return TerrainDefOf.Sand;
-        //}
     }
 }

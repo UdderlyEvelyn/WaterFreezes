@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using RimWorld;
 using Verse;
 
-namespace LCF
+namespace WF
 {
     public static class IceDefs
     {

@@ -7,7 +7,7 @@ using RimWorld;
 using Verse;
 using HarmonyLib;
 
-namespace LCF
+namespace WF
 {
     [StaticConstructorOnStartup]
     public static class WaterFreezes

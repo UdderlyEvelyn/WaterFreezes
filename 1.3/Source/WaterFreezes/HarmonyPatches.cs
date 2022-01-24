@@ -12,7 +12,7 @@ using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace LCF
+namespace WF
 {
     //Saving this in case we need it for future projects, might do something with, e.g., soil fertility that dips after enough plantings and then slowly bounces back..
 
@@ -89,7 +89,7 @@ namespace LCF
                 float ice = comp.IceDepthGrid[ind];
                 float water = comp.WaterDepthGrid[ind];
                 //string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
-                float pseudoElevation = comp.PseudoWaterElevationGrid[ind];
+                //float pseudoElevation = comp.PseudoWaterElevationGrid[ind];
                 if (ice > 0)
                 {
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Ice depth " + Math.Round(ice, 4).ToString());
@@ -106,10 +106,10 @@ namespace LCF
                 //    rectY += 19f;
                 //}
                 //if (pseudoElevation > 0)
-                {
-                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Elevation " + pseudoElevation.ToString());
-                    rectY += 19f;
-                }
+                //{
+                //    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Elevation " + pseudoElevation.ToString());
+                //    rectY += 19f;
+                //}
                 return rectY;
             }
             return num;
