@@ -2,7 +2,7 @@
 <Defs>
 
  <TerrainDef ParentName="NaturalTerrainBase">
-    <defName>LCF_LakeIceThin</defName>
+    <defName>WF_LakeIceThin</defName>
     <label>Lake Ice</label>
     <texturePath>LakeIceThin</texturePath>
     <edgeType>FadeRough</edgeType>
@@ -23,7 +23,7 @@
   </TerrainDef>
   
    <TerrainDef ParentName="NaturalTerrainBase">
-    <defName>LCF_LakeIce</defName>
+    <defName>WF_LakeIce</defName>
     <label>Lake Ice</label>
     <texturePath>LakeIce</texturePath>
     <edgeType>FadeRough</edgeType>
@@ -45,8 +45,8 @@
   </TerrainDef>
   
    <TerrainDef ParentName="NaturalTerrainBase">
-    <defName>LCF_LakeIceThick</defName>
-    <label>Thick Lake Ice</label>
+    <defName>WF_LakeIceThick</defName>
+    <label>Lake Ice</label>
     <texturePath>LakeIceThick</texturePath>
     <edgeType>FadeRough</edgeType>
     <renderPrecedence>350</renderPrecedence>

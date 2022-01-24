@@ -21,7 +21,7 @@ namespace LCF
     [HarmonyPatch(typeof(TerrainGrid), "SetTerrain")]
     public class SetTerrainUpdateHook
     {
-        private static Dictionary<int, MapComponent_LakesCanFreeze> compCachePerMap = new Dictionary<int, MapComponent_LakesCanFreeze>();
+        private static Dictionary<int, MapComponent_WaterFreezes> compCachePerMap = new Dictionary<int, MapComponent_WaterFreezes>();
 
         internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map)
         {
@@ -31,9 +31,9 @@ namespace LCF
                 return; //Who cares?
             if (oldTerrain == TerrainDefOf.WaterDeep || oldTerrain == TerrainDefOf.WaterShallow) //If it's the freezable type of water..
             {
-                MapComponent_LakesCanFreeze comp; //Set up var.
+                MapComponent_WaterFreezes comp; //Set up var.
                 if (!compCachePerMap.ContainsKey(___map.uniqueID)) //If not cached..
-                    compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_LakesCanFreeze>()); //Get and cache.
+                    compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_WaterFreezes>()); //Get and cache.
                 else
                     comp = compCachePerMap[___map.uniqueID]; //Retrieve from cache.
                 if (newTerr == TerrainDefOf.WaterDeep || newTerr == TerrainDefOf.WaterShallow) //If it's becoming water..
@@ -80,7 +80,7 @@ namespace LCF
 
         public static float MakeLabelIfRequired(IntVec3 cell, Vector2 BotLeft, float num)
         {
-            var comp = Find.CurrentMap.GetComponent<MapComponent_LakesCanFreeze>();
+            var comp = Find.CurrentMap.GetComponent<MapComponent_WaterFreezes>();
             if (comp != null)
             {
                 float rectY = num;
@@ -88,7 +88,7 @@ namespace LCF
 
                 float ice = comp.IceDepthGrid[ind];
                 float water = comp.WaterDepthGrid[ind];
-                string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
+                //string naturalWaterLabel = comp.NaturalWaterTerrainGrid[ind] != null ? comp.NaturalWaterTerrainGrid[ind].LabelCap : null;
                 float pseudoElevation = comp.PseudoWaterElevationGrid[ind];
                 if (ice > 0)
                 {
@@ -100,11 +100,11 @@ namespace LCF
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Water depth " + Math.Round(water, 4).ToString());
                     rectY += 19f;
                 }
-                if (naturalWaterLabel != null)
-                { 
-                    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Natural water tile " + naturalWaterLabel);
-                    rectY += 19f;
-                }
+                //if (naturalWaterLabel != null)
+                //{ 
+                //    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Natural water tile " + naturalWaterLabel);
+                //    rectY += 19f;
+                //}
                 //if (pseudoElevation > 0)
                 {
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Elevation " + pseudoElevation.ToString());

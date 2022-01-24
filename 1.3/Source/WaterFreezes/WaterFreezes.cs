@@ -10,9 +10,9 @@ using HarmonyLib;
 namespace LCF
 {
     [StaticConstructorOnStartup]
-    public static class LakesCanFreeze
+    public static class WaterFreezes
     {
-        static LakesCanFreeze()
+        static WaterFreezes()
         {
             var harmony = new Harmony("UdderlyEvelyn.LakesCanFreeze");
             harmony.PatchAll();

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Lakes Can Freeze</name>
+  <name>Water Freezes</name>
   <author>UdderlyEvelyn</author>
   <supportedVersions>
     <li>1.3</li>
   </supportedVersions>
-  <packageId>UdderlyEvelyn.LakesCanFreeze</packageId>
+  <packageId>UdderlyEvelyn.WaterFreezes</packageId>
   <description>
-Lakes can freeze depending on temperature, and if you use another mod that allows you to harvest the ice (like Soil Relocation, which this was designed to compliment) they will fill back up when the temperature goes back up.
+Water freezes and turns to ice with different depths, if you use Soil Relocation Framework you can dig it up and use it to cool rooms, too!
   </description>
   <loadAfter>
     <li>Ludeon.RimWorld</li>
