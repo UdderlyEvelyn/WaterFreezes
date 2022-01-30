@@ -13,5 +13,7 @@ namespace WF
         public static TerrainDef WF_LakeIceThin = DefDatabase<TerrainDef>.GetNamed("WF_LakeIceThin");
         public static TerrainDef WF_LakeIce = DefDatabase<TerrainDef>.GetNamed("WF_LakeIce");
         public static TerrainDef WF_LakeIceThick = DefDatabase<TerrainDef>.GetNamed("WF_LakeIceThick");
+        public static TerrainDef WF_MarshIceThin = DefDatabase<TerrainDef>.GetNamed("WF_MarshIceThin");
+        public static TerrainDef WF_MarshIce = DefDatabase<TerrainDef>.GetNamed("WF_MarshIce");
     }
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
+<!--Lake Ice-->
+
  <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIceThin</defName>
     <label>Lake Ice</label>
@@ -60,6 +62,51 @@
       <li>Light</li>
       <li>Medium</li>
       <li>Heavy</li>
+      <li>Diggable</li>
+    </affordances>
+    <generatedFilth>Filth_Dirt</generatedFilth>
+    <fertility>0.00</fertility>
+    <takeFootprints>True</takeFootprints>
+  </TerrainDef>
+  
+  <!--Marsh Ice-->
+  
+  <TerrainDef ParentName="NaturalTerrainBase">
+    <defName>WF_MarshIceThin</defName>
+    <label>Marsh Ice</label>
+    <texturePath>MarshIceThin</texturePath>
+    <edgeType>FadeRough</edgeType>
+    <renderPrecedence>350</renderPrecedence>
+    <pathCost>14</pathCost>
+    <statBases>
+      <Beauty>-3</Beauty>
+      <BeautyOutdoors>0</BeautyOutdoors>
+    </statBases>
+    <scatterType>SoftGray</scatterType>
+    <affordances>
+      <li>Light</li>
+      <li>Diggable</li>
+    </affordances>
+    <generatedFilth>Filth_Dirt</generatedFilth>
+    <fertility>0.00</fertility>
+    <takeFootprints>True</takeFootprints>
+  </TerrainDef>
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
+    <defName>WF_MarshIce</defName>
+    <label>Marsh Ice</label>
+    <texturePath>MarshIce</texturePath>
+    <edgeType>FadeRough</edgeType>
+    <renderPrecedence>350</renderPrecedence>
+    <pathCost>14</pathCost>
+    <statBases>
+      <Beauty>-3</Beauty>
+      <BeautyOutdoors>0</BeautyOutdoors>
+    </statBases>
+    <scatterType>SoftGray</scatterType>
+    <affordances>
+      <li>Light</li>
+      <li>Medium</li>
       <li>Diggable</li>
     </affordances>
     <generatedFilth>Filth_Dirt</generatedFilth>
