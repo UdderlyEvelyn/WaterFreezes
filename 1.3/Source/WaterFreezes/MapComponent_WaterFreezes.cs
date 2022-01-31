@@ -14,12 +14,13 @@ namespace WF
 		public float[] IceDepthGrid;
 		public float[] WaterDepthGrid;
 		public float[] PseudoWaterElevationGrid;
-		float thresholdThinIce = 15;
-		float thresholdIce = 50;
-		float thresholdThickIce = 110;
 		int freezingMultiplier = 4;
 		int thawingMultiplier = 2;
 		float iceRate = 2500;
+		//Ice thresholds of type by depth.
+		float thresholdThinIce = 15;
+		float thresholdIce = 50;
+		float thresholdThickIce = 110;
 		//Used for lakes *and* rivers.
 		float maxWaterDeep = 400;
 		float maxWaterShallow = 100;
@@ -55,12 +56,12 @@ namespace WF
 				{
 					var c = map.cellIndices.IndexToCell(i);
 					var t = c.GetTerrain(map);
-					if (t == TerrainDefOf.WaterDeep)
+					if (t == TerrainDefOf.WaterDeep)// || t == TerrainDefOf.WaterMovingChestDeep)
 					{
 						NaturalWaterTerrainGrid[i] = t;
 						WaterDepthGrid[i] = maxWaterDeep;
 					}
-					else if (t == TerrainDefOf.WaterShallow)
+					else if (t == TerrainDefOf.WaterShallow)// || t == TerrainDefOf.WaterMovingShallow)
                     {
 						NaturalWaterTerrainGrid[i] = t;
 						WaterDepthGrid[i] = maxWaterShallow;
@@ -101,12 +102,14 @@ namespace WF
 			{
 				var cell = map.cellIndices.IndexToCell(i);
 				var currentTerrain = cell.GetTerrain(map); //Get current terrain.
-														   //If it's lake ice or it's water, or it's a natural water spot..
+				//If it's lake ice or it's water, or it's a natural water spot..
 				if (currentTerrain == IceDefs.WF_LakeIceThin ||
 					currentTerrain == IceDefs.WF_LakeIce ||
 					currentTerrain == IceDefs.WF_LakeIceThick ||
 					currentTerrain == TerrainDefOf.WaterShallow ||
 					currentTerrain == TerrainDefOf.WaterDeep ||
+					//currentTerrain == TerrainDefOf.WaterMovingShallow ||
+					//currentTerrain == TerrainDefOf.WaterMovingChestDeep ||
 					currentTerrain == WaterDefs.Marsh ||
 					AllWaterTerrainGrid[i] != null)
 				{
@@ -274,7 +277,7 @@ namespace WF
 					var change = temperature / (thawingMultiplier + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a multiplier which takes into account surrounding terrain.
 						(IceDepthGrid[i] / 100) * //Slow thawing further by ice thickness per 100 ice.
 						(currentTerrain == IceDefs.WF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
-						(currentTerrain == IceDefs.WF_LakeIce ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
+						((currentTerrain == IceDefs.WF_LakeIce || currentTerrain == IceDefs.WF_MarshIce) ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] -= change; //Ice goes down..
@@ -302,31 +305,36 @@ namespace WF
 			var water = AllWaterTerrainGrid[i];
 			var isLake = water == TerrainDefOf.WaterDeep || water == TerrainDefOf.WaterShallow;
 			var isMarsh = water == WaterDefs.Marsh;
+			if (currentTerrain == null) //If it wasn't passed in..
+				currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
 			if (ice < thresholdThinIce) //If there's no ice..
 				ThawCell(cell);
-			else if (ice < thresholdIce) //If there's ice, but it's below the regular ice depth threshold..
+			else
 			{
-				if (currentTerrain == null) //If it wasn't passed in..
-					currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
-																 //If it's water then it's freezing now..
-				if (currentTerrain == TerrainDefOf.WaterDeep ||
-					currentTerrain == TerrainDefOf.WaterShallow ||
-					currentTerrain == WaterDefs.Marsh)
-					map.terrainGrid.SetUnderTerrain(cell, currentTerrain); //Store the water in under-terrain.
-				if (isLake)
-					map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThin);
-				else if (isMarsh)
-					map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIceThin);
+				if (currentTerrain.bridge) //If it's a bridge
+					return; //We're not updating the terrain, cuz it's under the bridge.
+				if (ice < thresholdIce) //If there's ice, but it's below the regular ice depth threshold..
+				{
+					//If it's water then it's freezing now..
+					if (currentTerrain == TerrainDefOf.WaterDeep ||
+						currentTerrain == TerrainDefOf.WaterShallow ||
+						currentTerrain == WaterDefs.Marsh)
+						map.terrainGrid.SetUnderTerrain(cell, currentTerrain); //Store the water in under-terrain.
+					if (isLake)
+						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThin);
+					else if (isMarsh)
+						map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIceThin);
+				}
+				else if (ice < thresholdThickIce) //If it's between regular ice and thick ice in depth..
+				{
+					if (isLake)
+						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIce);
+					else if (isMarsh)
+						map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIce);
+				}
+				else //Only thick left..
+					map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThick); //Only lakes have thick ice (right now), so no branching/checks here..
 			}
-			else if (ice < thresholdThickIce) //If it's between regular ice and thick ice in depth..
-			{
-				if (isLake)
-					map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIce);
-				else if (isMarsh)
-					map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIce);
-			}
-			else //Only thick left..
-				map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThick); //Only lakes have thick ice (right now), so no branching/checks here..
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -336,11 +344,15 @@ namespace WF
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = cell.GetTerrain(map); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i);
+				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			if (NaturalWaterTerrainGrid[i] != null) //If it's natural water..
 			{
-				map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
-				DestroyBuildingsInCell(cell);
+				if (!currentTerrain.bridge)
+				{
+					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
+					Log.Message("Calling DestroyBuildingInCell from natural lake thaw code..");
+					DestroyBuildingsInCell(cell);
+				}
 				var season = GenLocalDate.Season(map);
 				if (season == Season.Spring || season == Season.Summer || season == Season.PermanentSummer) //If it's the right season..
 				{
@@ -370,10 +382,11 @@ namespace WF
 			}
 			else if (underTerrain != null && (underTerrain == TerrainDefOf.WaterShallow || underTerrain == TerrainDefOf.WaterDeep || underTerrain == WaterDefs.Marsh)) //If there was under-terrain and it's water.
 			{
-				if (WaterDepthGrid[i] > 0) //If there's water there..
+				if (WaterDepthGrid[i] > 0 && !currentTerrain.bridge) //If there's water there and it isn't under a bridge..
 				{
 					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
 					map.terrainGrid.SetUnderTerrain(cell, null); //Clear the under-terrain
+					Log.Message("Calling DestroyBuildingInCell from artificial lake thaw code..");
 					DestroyBuildingsInCell(cell);
 				}
 			}
@@ -423,18 +436,31 @@ namespace WF
 			return NaturalWaterTerrainGrid[map.cellIndices.CellToIndex(cell)];
         }
 
+		/// <summary>
+		/// Destroy all buildings incapable of existing on the cell and return whether any was skipped due to being impassable.
+		/// </summary>
+		/// <param name="cell"></param>
+		/// <returns></returns>
 		public void DestroyBuildingsInCell(IntVec3 cell)
-        {
+		{
+			if (cell == null)
+				Log.Error("Cell null..?");
+			if (map == null)
+				Log.Error("Map null..?");
 			var things = cell.GetThingList(map);
-			for (int i = 0; i < things.Count; i++)
+			if (things == null)
+				Log.Error("things null.");
+			foreach (var thing in things)
 			{
-				var thing = things[i];
+				Log.Message("Assessing " + thing.def.defName + " for destruction on tile of type " + cell.GetTerrain(map).defName + " with " + thing.def.placeWorkers.Count + " placeworkers.");
 				if (thing is Building && thing.def.destroyable)
-					thing.Destroy(DestroyMode.Deconstruct);
+					foreach (PlaceWorker pw in thing.def.PlaceWorkers)
+						if (!pw.AllowsPlacing(thing.def, cell, thing.Rotation, map).Accepted)
+							thing.Destroy(DestroyMode.Deconstruct);
 			}
-        }
+		}
 
-        public override void ExposeData()
+		public override void ExposeData()
 		{
 			List<float> iceDepthGridList = new List<float>();
 			List<float> waterDepthGridList = new List<float>();
