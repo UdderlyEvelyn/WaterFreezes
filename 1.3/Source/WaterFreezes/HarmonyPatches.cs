@@ -39,7 +39,7 @@ namespace WF
                 if (newTerr == TerrainDefOf.WaterDeep || newTerr == TerrainDefOf.WaterShallow) //If it's becoming water..
                     comp.AllWaterTerrainGrid[i] = newTerr;
                 else //It's water and becoming not water..
-                    if (!(comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep || comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow)) //It's not natural water..
+                    if (!(comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep || comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow || comp.NaturalWaterTerrainGrid[i] == WaterDefs.Marsh)) //It's not natural water..
                         comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
             }
         }

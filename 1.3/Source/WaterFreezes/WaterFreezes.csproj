@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="ToggleablePatch.cs" />
     <Compile Include="WaterDefs.cs" />
     <Compile Include="IceDefs.cs" />
     <Compile Include="WaterFreezes.cs" />

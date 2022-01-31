@@ -42,15 +42,15 @@ namespace WF
 
 		public void Initialize()
         {
-			Log.Message("[WaterFreezes] Initializing..");
+			Log.Message("[Water Freezes] MapComponent Initializing..");
 			if (WaterDepthGrid == null) //If we have no water depth grid..
 			{
-				Log.Message("[WaterFreezes] Instantiating water depth grid..");
+				Log.Message("[Water Freezes] Instantiating water depth grid..");
 				WaterDepthGrid = new float[map.cellIndices.NumGridCells]; //Instantiate it.
 			}
 			if (NaturalWaterTerrainGrid == null) //If we haven't got a waterGrid loaded from the save file, make one.
 			{
-				Log.Message("[WaterFreezes] Generating natural water grid and populating water depth grid..");
+				Log.Message("[Water Freezes] Generating natural water grid and populating water depth grid..");
 				NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
 				for (int i = 0; i < map.cellIndices.NumGridCells; i++)
 				{
@@ -75,17 +75,17 @@ namespace WF
 			}
 			if (AllWaterTerrainGrid == null) //If we have no all-water terrain grid..
 			{
-				Log.Message("[WaterFreezes] Cloning natural water grid into all water grid..");
+				Log.Message("[Water Freezes] Cloning natural water grid into all water grid..");
 				AllWaterTerrainGrid = (TerrainDef[])NaturalWaterTerrainGrid.Clone(); //Instantiate it to content of the natural water array for starters.
 			}
 			if (IceDepthGrid == null)
 			{
-				Log.Message("[WaterFreezes] Instantiating ice depth grid..");
+				Log.Message("[Water Freezes] Instantiating ice depth grid..");
 				IceDepthGrid = new float[map.cellIndices.NumGridCells];
 			}
 			if (PseudoWaterElevationGrid == null)
 			{
-				Log.Message("[WaterFreezes] Generating pseudo water elevation grid..");
+				Log.Message("[Water Freezes] Generating pseudo water elevation grid..");
 				PseudoWaterElevationGrid = new float[map.cellIndices.NumGridCells];
 				UpdatePseudoWaterElevationGrid();
 			}
@@ -106,6 +106,8 @@ namespace WF
 				if (currentTerrain == IceDefs.WF_LakeIceThin ||
 					currentTerrain == IceDefs.WF_LakeIce ||
 					currentTerrain == IceDefs.WF_LakeIceThick ||
+					currentTerrain == IceDefs.WF_MarshIceThin ||
+					currentTerrain == IceDefs.WF_MarshIce ||
 					currentTerrain == TerrainDefOf.WaterShallow ||
 					currentTerrain == TerrainDefOf.WaterDeep ||
 					//currentTerrain == TerrainDefOf.WaterMovingShallow ||
@@ -122,7 +124,7 @@ namespace WF
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdatePseudoWaterElevationGrid()
         {
-			Log.Message("[WaterFreezes] Updating pseudo water elevation grid..");
+			Log.Message("[Water Freezes] Updating pseudo water elevation grid..");
 			for (int i = 0; i < AllWaterTerrainGrid.Length; i++)
 				if (AllWaterTerrainGrid[i] != null)
 					UpdatePseudoWaterElevationGridForCell(map.cellIndices.IndexToCell(i));
@@ -139,8 +141,8 @@ namespace WF
 				int adjacentCellIndex = map.cellIndices.CellToIndex(adjacentCells[j]);
 				if (adjacentCellIndex < 0 || adjacentCellIndex >= map.terrainGrid.topGrid.Length) //If it's a negative index or it's a larger index than the map's grid length (faster to get topGrid.Length than use property on the cellIndices).
 					continue; //Skip it.
-				if (AllWaterTerrainGrid[adjacentCellIndex] == null) //If it's land..
-					pseudoElevationScore += 1; //+4 for each land
+				if (AllWaterTerrainGrid[adjacentCellIndex] == null) //If it's land (e.g., not recognized water)..
+					pseudoElevationScore += 1; //+1 for each land
 			}
 			PseudoWaterElevationGrid[i] = pseudoElevationScore;
 		}
@@ -152,7 +154,7 @@ namespace WF
 				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			//Log.Message("[WaterFreezes] Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
+			//Log.Message("[Water Freezes] Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
 			return currentTerrain == def || underTerrain == def || AllWaterTerrainGrid[i] == def;
 		}
 
@@ -253,7 +255,7 @@ namespace WF
 						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) //* //If it's deep water right now, slow it down more.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
-					//Log.Message("[WaterFreezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
+					//Log.Message("[Water Freezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					IceDepthGrid[i] += change; //Ice goes up..
 					if (IsShallowWater(i, map, currentTerrain, underTerrain))
 						if (IceDepthGrid[i] > maxIceShallow)
@@ -267,7 +269,7 @@ namespace WF
 					WaterDepthGrid[i] -= change; //Water depth goes down..
 					if (WaterDepthGrid[i] < 0)
 						WaterDepthGrid[i] = 0;
-					//Log.Message("[WaterFreezes] For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
+					//Log.Message("[Water Freezes] For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 				}
 			}
 			else if (temperature > 0) //Temperature is above zero..
@@ -333,7 +335,9 @@ namespace WF
 						map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIce);
 				}
 				else //Only thick left..
-					map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThick); //Only lakes have thick ice (right now), so no branching/checks here..
+					if (isLake)
+						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThick); //Only lakes have thick ice (right now), so no branching/checks here..
+				BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 			}
 		}
 
@@ -342,10 +346,7 @@ namespace WF
 		{
 			int i = map.cellIndices.CellToIndex(cell);
 			if (cell.GetTemperature(map) <= 0) //If it's at or above freezing..
-            {
-				Log.Message("Aborting thaw due to temp.");
 				return; //Do not thaw!
-			}
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = cell.GetTerrain(map); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
@@ -354,9 +355,8 @@ namespace WF
 			{
 				if (!currentTerrain.bridge)
 				{
-					Log.Message("Restoring terrain due to thaw at temp " + cell.GetTemperature(map));
 					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
-					DestroyBuildingsInCell(cell);
+					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 				}
 				var season = GenLocalDate.Season(map);
 				if (season == Season.Spring || season == Season.Summer || season == Season.PermanentSummer) //If it's the right season..
@@ -387,13 +387,11 @@ namespace WF
 			}
 			else if (underTerrain != null && (underTerrain == TerrainDefOf.WaterShallow || underTerrain == TerrainDefOf.WaterDeep || underTerrain == WaterDefs.Marsh)) //If there was under-terrain and it's water.
 			{
-				Log.Message("Artificial lake code running.");
 				if (WaterDepthGrid[i] > 0 && !currentTerrain.bridge) //If there's water there and it isn't under a bridge..
 				{
 					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
 					map.terrainGrid.SetUnderTerrain(cell, null); //Clear the under-terrain
-					Log.Message("Calling DestroyBuildingInCell from artificial lake thaw code..");
-					DestroyBuildingsInCell(cell);
+					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 				}
 			}
 		}
@@ -442,23 +440,67 @@ namespace WF
 			return NaturalWaterTerrainGrid[map.cellIndices.CellToIndex(cell)];
         }
 
-		/// <summary>
-		/// Destroy all buildings incapable of existing on the cell and return whether any was skipped due to being impassable.
-		/// </summary>
-		/// <param name="cell"></param>
-		/// <returns></returns>
-		public void DestroyBuildingsInCell(IntVec3 cell)
+		public void BreakdownOrDestroyBuildingsInCellIfInvalid(IntVec3 cell)
 		{
-            var things = cell.GetThingList(map);
-			foreach (var thing in things)
-				if (thing is Building && thing.def.destroyable && thing.def.PlaceWorkers != null)
-					foreach (PlaceWorker pw in thing.def.PlaceWorkers)
-						if (!pw.AllowsPlacing(thing.def, cell, thing.Rotation, map).Accepted)
+			var terrain = cell.GetTerrain(map);
+			var things = cell.GetThingList(map);
+			bool exception = false;
+			for (int i = 0; i < things.Count; i++)
+			{
+				var thing = things[i];
+				if (thing == null)
+					continue; //Can't work on a null thing!
+				if (thing is Building && thing.def.destroyable)
+				{
+					bool resolved = false;
+					if (thing.def.defName == "VFE_TidalGenerator")
+						exception = true;
+					if (thing.def.PlaceWorkers != null)
+						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
 						{
-							thing.Destroy(DestroyMode.Deconstruct);
-							break;
+							var acceptanceReport = pw.AllowsPlacing(thing.def, thing.Position, thing.Rotation, map);
+							if (!acceptanceReport) //Failed PlaceWorker
+							{
+								if (exception && acceptanceReport.Reason == "VPE_NeedsDistance".Translate()) //If it's a tidal generator trying to see if it's too close to itself..
+									continue; //Don't destroy for this particular reason, irrelevant.
+								BreakdownOrDestroyBuilding(thing);
+								resolved = true;
+								break; //We don't need to check more if we've found a reason to not be here.
+							}
 						}
+					exception = false; //Reset bool.
+					//Case isn't resolved and either had had no PlaceWorkers or it passed all their checks but it has an affordance that isn't being met.
+					if (!resolved && 
+						thing.TerrainAffordanceNeeded != null && 
+						terrain.affordances != null && 
+						terrain.affordances.Contains(thing.TerrainAffordanceNeeded)) 
+						BreakdownOrDestroyBuilding(thing);
+				}
+			}
         }
+
+		public void BreakdownOrDestroyBuilding(Thing thing)
+        {
+			if (thing is ThingWithComps twc) //If it has comps..
+			{
+				var flickable = twc.GetComp<CompFlickable>();
+				var breakdown = twc.GetComp<CompBreakdownable>();
+				if (flickable != null && breakdown != null) //If it has both comps..
+				{
+					if (flickable.SwitchIsOn)
+					{
+						breakdown.DoBreakdown(); //Cause breakdown.
+						flickable.DoFlick(); //Turn it off.
+					}
+				}
+				else if (breakdown != null) //It has breakdown but not flickable..
+					breakdown.DoBreakdown();
+				else //It has either only flickable or neither.
+					thing.Destroy(DestroyMode.FailConstruction);
+			}
+			else //No comps..
+				thing.Destroy(DestroyMode.FailConstruction);
+		}
 
 		public override void ExposeData()
 		{
