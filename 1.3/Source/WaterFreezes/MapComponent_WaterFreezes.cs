@@ -308,7 +308,7 @@ namespace WF
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = map.terrainGrid.topGrid[i]; //Get it.
 			if (ice < thresholdThinIce) //If there's no ice..
-				ThawCell(cell);
+				ThawCell(cell, currentTerrain);
 			else
 			{
 				if (currentTerrain.bridge) //If it's a bridge
@@ -339,8 +339,13 @@ namespace WF
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void ThawCell(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-        {
+		{
 			int i = map.cellIndices.CellToIndex(cell);
+			if (cell.GetTemperature(map) <= 0) //If it's at or above freezing..
+            {
+				Log.Message("Aborting thaw due to temp.");
+				return; //Do not thaw!
+			}
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = cell.GetTerrain(map); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
@@ -349,8 +354,8 @@ namespace WF
 			{
 				if (!currentTerrain.bridge)
 				{
+					Log.Message("Restoring terrain due to thaw at temp " + cell.GetTemperature(map));
 					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
-					Log.Message("Calling DestroyBuildingInCell from natural lake thaw code..");
 					DestroyBuildingsInCell(cell);
 				}
 				var season = GenLocalDate.Season(map);
@@ -382,6 +387,7 @@ namespace WF
 			}
 			else if (underTerrain != null && (underTerrain == TerrainDefOf.WaterShallow || underTerrain == TerrainDefOf.WaterDeep || underTerrain == WaterDefs.Marsh)) //If there was under-terrain and it's water.
 			{
+				Log.Message("Artificial lake code running.");
 				if (WaterDepthGrid[i] > 0 && !currentTerrain.bridge) //If there's water there and it isn't under a bridge..
 				{
 					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
@@ -443,22 +449,16 @@ namespace WF
 		/// <returns></returns>
 		public void DestroyBuildingsInCell(IntVec3 cell)
 		{
-			if (cell == null)
-				Log.Error("Cell null..?");
-			if (map == null)
-				Log.Error("Map null..?");
-			var things = cell.GetThingList(map);
-			if (things == null)
-				Log.Error("things null.");
+            var things = cell.GetThingList(map);
 			foreach (var thing in things)
-			{
-				Log.Message("Assessing " + thing.def.defName + " for destruction on tile of type " + cell.GetTerrain(map).defName + " with " + thing.def.placeWorkers.Count + " placeworkers.");
-				if (thing is Building && thing.def.destroyable)
+				if (thing is Building && thing.def.destroyable && thing.def.PlaceWorkers != null)
 					foreach (PlaceWorker pw in thing.def.PlaceWorkers)
 						if (!pw.AllowsPlacing(thing.def, cell, thing.Rotation, map).Accepted)
+						{
 							thing.Destroy(DestroyMode.Deconstruct);
-			}
-		}
+							break;
+						}
+        }
 
 		public override void ExposeData()
 		{
