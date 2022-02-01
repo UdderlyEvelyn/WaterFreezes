@@ -4,6 +4,8 @@ using RimWorld;
 using Verse;
 using System.Runtime.CompilerServices;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WF
 {
@@ -17,7 +19,7 @@ namespace WF
 		public float[] PseudoWaterElevationGrid;
 		int freezingMultiplier = 4;
 		int thawingMultiplier = 2;
-		float iceRate = 2500;
+		float iceRate = 1000;
 		//Ice thresholds of type by depth.
 		float thresholdThinIce = 15;
 		float thresholdIce = 50;
@@ -217,6 +219,19 @@ namespace WF
 				   IsTerrainDef(i, map, IceDefs.WF_RiverIceThick, currentTerrain, underTerrain);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsRiver(int i, Map map, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		{
+			if (currentTerrain == null) //If it wasn't passed in..
+				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
+			if (underTerrain == null) //If it wasn't passed in..
+				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
+			return IsTerrainDef(i, map, IceDefs.WF_RiverIceThin, currentTerrain, underTerrain) ||
+				   IsTerrainDef(i, map, IceDefs.WF_RiverIce, currentTerrain, underTerrain) ||
+				   IsTerrainDef(i, map, IceDefs.WF_RiverIceThick, currentTerrain, underTerrain) ||
+				   IsTerrainDef(i, map, TerrainDefOf.WaterMovingShallow, currentTerrain, underTerrain) ||
+				   IsTerrainDef(i, map, TerrainDefOf.WaterMovingChestDeep, currentTerrain, underTerrain);
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsMarshIce(int i, Map map, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
@@ -269,9 +284,11 @@ namespace WF
 		public void UpdateIceForTemperature(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
 		{
 			var temperature = GenTemperature.GetTemperatureForCell(cell, map);
+			int i = map.cellIndices.CellToIndex(cell);
+			if (IsRiver(i, map, currentTerrain)) //If it's part of a river..
+				temperature += 10; //Offset by 10 degrees because the moving water introduces kinetic energy.
 			if (temperature == 0) //If it's 0degC..
 				return; //We don't update when ambiguous.
-			int i = map.cellIndices.CellToIndex(cell);
 			if (temperature < 0) //Temperature is below zero..
 			{
 				if (WaterDepthGrid[i] > 0)
@@ -298,7 +315,7 @@ namespace WF
 					}
 					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) * // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
 						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
-						(currentTerrain == TerrainDefOf.WaterDeep ? .5f : 1f) //* //If it's deep water right now, slow it down more.
+						((currentTerrain == TerrainDefOf.WaterDeep || currentTerrain == TerrainDefOf.WaterMovingChestDeep) ? .5f : 1f) //* //If it's deep water right now, slow it down more.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
 						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					//Log.Message("[Water Freezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
@@ -367,7 +384,9 @@ namespace WF
 					//If it's water then it's freezing now..
 					if (currentTerrain == TerrainDefOf.WaterDeep ||
 						currentTerrain == TerrainDefOf.WaterShallow ||
-						currentTerrain == WaterDefs.Marsh)
+						currentTerrain == WaterDefs.Marsh ||
+						currentTerrain == TerrainDefOf.WaterMovingShallow ||
+						currentTerrain == TerrainDefOf.WaterMovingChestDeep)
 						map.terrainGrid.SetUnderTerrain(cell, currentTerrain); //Store the water in under-terrain.
 					if (isLake)
 						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThin);
