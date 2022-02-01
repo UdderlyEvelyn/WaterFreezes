@@ -6,7 +6,7 @@
  <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIceThin</defName>
     <label>Lake Ice</label>
-    <texturePath>LakeIceThin</texturePath>
+    <texturePath>IceThin</texturePath>
     <edgeType>FadeRough</edgeType>
     <renderPrecedence>350</renderPrecedence>
     <pathCost>14</pathCost>
@@ -28,7 +28,7 @@
    <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIce</defName>
     <label>Lake Ice</label>
-    <texturePath>LakeIce</texturePath>
+    <texturePath>Ice</texturePath>
     <edgeType>FadeRough</edgeType>
     <renderPrecedence>350</renderPrecedence>
     <pathCost>14</pathCost>
@@ -51,7 +51,7 @@
    <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIceThick</defName>
     <label>Lake Ice</label>
-    <texturePath>LakeIceThick</texturePath>
+    <texturePath>IceThick</texturePath>
     <edgeType>FadeRough</edgeType>
     <renderPrecedence>350</renderPrecedence>
     <pathCost>14</pathCost>
@@ -111,6 +111,77 @@
     <affordances>
       <li>Light</li>
       <li>Medium</li>
+      <li>Diggable</li>
+      <li>Bridgeable</li>
+    </affordances>
+    <generatedFilth>Filth_Dirt</generatedFilth>
+    <fertility>0.00</fertility>
+    <takeFootprints>True</takeFootprints>
+  </TerrainDef>
+  
+  <!--River Ice-->
+
+ <TerrainDef ParentName="NaturalTerrainBase">
+    <defName>WF_RiverIceThin</defName>
+    <label>River Ice</label>
+    <texturePath>IceThin</texturePath>
+    <edgeType>FadeRough</edgeType>
+    <renderPrecedence>350</renderPrecedence>
+    <pathCost>14</pathCost>
+    <statBases>
+      <Beauty>-3</Beauty>
+      <BeautyOutdoors>0</BeautyOutdoors>
+    </statBases>
+    <scatterType>SoftGray</scatterType>
+    <affordances>
+      <li>Light</li>
+      <li>Diggable</li>
+      <li>Bridgeable</li>
+    </affordances>
+    <generatedFilth>Filth_Dirt</generatedFilth>
+    <fertility>0.00</fertility>
+    <takeFootprints>True</takeFootprints>
+  </TerrainDef>
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
+    <defName>WF_RiverIce</defName>
+    <label>River Ice</label>
+    <texturePath>Ice</texturePath>
+    <edgeType>FadeRough</edgeType>
+    <renderPrecedence>350</renderPrecedence>
+    <pathCost>14</pathCost>
+    <statBases>
+      <Beauty>-3</Beauty>
+      <BeautyOutdoors>0</BeautyOutdoors>
+    </statBases>
+    <scatterType>SoftGray</scatterType>
+    <affordances>
+      <li>Light</li>
+      <li>Medium</li>
+      <li>Diggable</li>
+      <li>Bridgeable</li>
+    </affordances>
+    <generatedFilth>Filth_Dirt</generatedFilth>
+    <fertility>0.00</fertility>
+    <takeFootprints>True</takeFootprints>
+  </TerrainDef>
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
+    <defName>WF_RiverIceThick</defName>
+    <label>River Ice</label>
+    <texturePath>IceThick</texturePath>
+    <edgeType>FadeRough</edgeType>
+    <renderPrecedence>350</renderPrecedence>
+    <pathCost>14</pathCost>
+    <statBases>
+      <Beauty>-3</Beauty>
+      <BeautyOutdoors>0</BeautyOutdoors>
+    </statBases>
+    <scatterType>SoftGray</scatterType>
+    <affordances>
+      <li>Light</li>
+      <li>Medium</li>
+      <li>Heavy</li>
       <li>Diggable</li>
       <li>Bridgeable</li>
     </affordances>
