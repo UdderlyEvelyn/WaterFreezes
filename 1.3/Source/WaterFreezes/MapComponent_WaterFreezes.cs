@@ -19,7 +19,6 @@ namespace WF
 		public float[] PseudoWaterElevationGrid;
 		int freezingMultiplier = 4;
 		int thawingMultiplier = 2;
-		float iceRate = 1000;
 		//Ice thresholds of type by depth.
 		float thresholdThinIce = 15;
 		float thresholdIce = 50;
@@ -99,7 +98,7 @@ namespace WF
 		{
 			if (!init) //If we aren't initialized..
 				Initialize(); //Initialize it!
-			if (Find.TickManager.TicksGame % iceRate != 0) //If it's not once per hour..
+			if (Find.TickManager.TicksGame % WaterFreezesSettings.IceRate != 0) //If it's not once per hour..
 				return; //Don't execute the rest, throttling measure.
 			for (int i = 0; i < NaturalWaterTerrainGrid.Length; i++) //Thread this later probably.
 			{
@@ -313,11 +312,11 @@ namespace WF
 						}))
 							return; //We aren't going to freeze before there's ice adjacent to us.
 					}
-					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) * // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
+					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) //* // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
 						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
-						((currentTerrain == TerrainDefOf.WaterDeep || currentTerrain == TerrainDefOf.WaterMovingChestDeep) ? .5f : 1f) //* //If it's deep water right now, slow it down more.
+						//((currentTerrain == TerrainDefOf.WaterDeep || currentTerrain == TerrainDefOf.WaterMovingChestDeep) ? .5f : 1f) //* //If it's deep water right now, slow it down more.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
-						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
+						/ 2500 * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					//Log.Message("[Water Freezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					IceDepthGrid[i] += change; //Ice goes up..
 					if (IsShallowWater(i, map, currentTerrain, underTerrain) || IsMovingShallowWater(i, map, currentTerrain))
@@ -340,11 +339,11 @@ namespace WF
 				if (IceDepthGrid[i] > 0)
 				{
 					var change = temperature / (thawingMultiplier + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a multiplier which takes into account surrounding terrain.
-						(IceDepthGrid[i] / 100) * //Slow thawing further by ice thickness per 100 ice.
-						(currentTerrain == IceDefs.WF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
-						((currentTerrain == IceDefs.WF_LakeIce || currentTerrain == IceDefs.WF_MarshIce) ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
+						(IceDepthGrid[i] / 100) //* //Slow thawing further by ice thickness per 100 ice.
+						//(currentTerrain == IceDefs.WF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
+						//((currentTerrain == IceDefs.WF_LakeIce || currentTerrain == IceDefs.WF_MarshIce) ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
-						/ 2500 * iceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
+						/ 2500 * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] -= change; //Ice goes down..
 					if (IceDepthGrid[i] < 0)
 						IceDepthGrid[i] = 0;
@@ -440,21 +439,21 @@ namespace WF
 					if (NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep || NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterMovingChestDeep) //It's deep water when present..
 					{
 						if (WaterDepthGrid[i] < maxWaterDeep) //If it's not over-full..
-							WaterDepthGrid[i] += 1 / 2500 * iceRate; //Fill
+							WaterDepthGrid[i] += 1 / 2500 * WaterFreezesSettings.IceRate; //Fill
 						if (WaterDepthGrid[i] > maxWaterDeep) //If it's too full..
 							WaterDepthGrid[i] = maxWaterDeep; //Cap it.
 					}
 					else if (NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow || NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterMovingShallow) //It's shallow water when present..
 					{
 						if (WaterDepthGrid[i] < maxWaterShallow) //If it's not over-full..
-							WaterDepthGrid[i] += 1 / 2500 * iceRate; //Fill
+							WaterDepthGrid[i] += 1 / 2500 * WaterFreezesSettings.IceRate; //Fill
 						if (WaterDepthGrid[i] > maxWaterShallow) //If it's too full..
 							WaterDepthGrid[i] = maxWaterShallow; //Cap it.
 					}
 					else if (NaturalWaterTerrainGrid[i] == WaterDefs.Marsh) //It's marsh when present..
                     {
 						if (WaterDepthGrid[i] < maxWaterMarsh) //If it's not over-full..
-							WaterDepthGrid[i] += 1 / 2500 * iceRate; //Fill
+							WaterDepthGrid[i] += 1 / 2500 * WaterFreezesSettings.IceRate; //Fill
 						if (WaterDepthGrid[i] > maxWaterMarsh) //If it's too full..
 							WaterDepthGrid[i] = maxWaterMarsh; //Cap it.
                     }
