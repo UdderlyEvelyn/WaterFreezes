@@ -17,8 +17,6 @@ namespace WF
 		public float[] IceDepthGrid;
 		public float[] WaterDepthGrid;
 		public float[] PseudoWaterElevationGrid;
-		int freezingMultiplier = 4;
-		int thawingMultiplier = 2;
 		//Ice thresholds of type by depth.
 		float thresholdThinIce = 15;
 		float thresholdIce = 50;
@@ -312,7 +310,7 @@ namespace WF
 						}))
 							return; //We aren't going to freeze before there's ice adjacent to us.
 					}
-					var change = -temperature * (freezingMultiplier + PseudoWaterElevationGrid[i]) //* // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
+					var change = -temperature * (WaterFreezesSettings.FreezingMultiplier + PseudoWaterElevationGrid[i]) //* // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
 						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
 						//((currentTerrain == TerrainDefOf.WaterDeep || currentTerrain == TerrainDefOf.WaterMovingChestDeep) ? .5f : 1f) //* //If it's deep water right now, slow it down more.
 						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
@@ -338,7 +336,7 @@ namespace WF
 			{
 				if (IceDepthGrid[i] > 0)
 				{
-					var change = temperature / (thawingMultiplier + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a multiplier which takes into account surrounding terrain.
+					var change = temperature / (WaterFreezesSettings.ThawingDivisor + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a divisor which takes into account surrounding terrain.
 						(IceDepthGrid[i] / 100) //* //Slow thawing further by ice thickness per 100 ice.
 						//(currentTerrain == IceDefs.WF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
 						//((currentTerrain == IceDefs.WF_LakeIce || currentTerrain == IceDefs.WF_MarshIce) ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.

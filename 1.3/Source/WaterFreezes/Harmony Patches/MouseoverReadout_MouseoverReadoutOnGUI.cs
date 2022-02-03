@@ -14,43 +14,12 @@ using System.Reflection.Emit;
 
 namespace WF
 {
-    //Saving this in case we need it for future projects, might do something with, e.g., soil fertility that dips after enough plantings and then slowly bounces back..
-
-    //[HarmonyPatch(typeof(GenStep_ElevationFertility), "Generate")]
-
-    [HarmonyPatch(typeof(TerrainGrid), "SetTerrain")]
-    public class SetTerrainUpdateHook
-    {
-        private static Dictionary<int, MapComponent_WaterFreezes> compCachePerMap = new Dictionary<int, MapComponent_WaterFreezes>();
-
-        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map)
-        {
-            int i = ___map.cellIndices.CellToIndex(c);
-            var oldTerrain = ___map.terrainGrid.TerrainAt(i);
-            if (oldTerrain == newTerr) //If we're not actually changing anything..
-                return; //Who cares?
-            if (oldTerrain == TerrainDefOf.WaterDeep || oldTerrain == TerrainDefOf.WaterShallow) //If it's the freezable type of water..
-            {
-                MapComponent_WaterFreezes comp; //Set up var.
-                if (!compCachePerMap.ContainsKey(___map.uniqueID)) //If not cached..
-                    compCachePerMap.Add(___map.uniqueID, comp = ___map.GetComponent<MapComponent_WaterFreezes>()); //Get and cache.
-                else
-                    comp = compCachePerMap[___map.uniqueID]; //Retrieve from cache.
-                if (newTerr == TerrainDefOf.WaterDeep || newTerr == TerrainDefOf.WaterShallow) //If it's becoming water..
-                    comp.AllWaterTerrainGrid[i] = newTerr;
-                else //It's water and becoming not water..
-                    if (!(comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep || comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow || comp.NaturalWaterTerrainGrid[i] == WaterDefs.Marsh)) //It's not natural water..
-                        comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(MouseoverReadout), "MouseoverReadoutOnGUI")]
-    public class MouseoverReadoutOnGUITranspiler
+    public class MouseoverReadout_MouseoverReadoutOnGUI
     {
         internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            MethodInfo labelMaker = AccessTools.Method(typeof(MouseoverReadoutOnGUITranspiler), "MakeLabelIfRequired");
+            MethodInfo labelMaker = AccessTools.Method(typeof(MouseoverReadout_MouseoverReadoutOnGUI), "MakeLabelIfRequired");
             FieldInfo BotLeft = AccessTools.Field(typeof(MouseoverReadout), "BotLeft");
             var codes = new List<CodeInstruction>(instructions);
             int num = 0;

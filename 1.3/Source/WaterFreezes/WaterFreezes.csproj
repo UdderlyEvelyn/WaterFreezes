@@ -61,10 +61,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HarmonyPatches.cs" />
+    <Compile Include="Harmony Patches\HarmonyPatchSharedData.cs" />
+    <Compile Include="Harmony Patches\MouseoverReadout_MouseoverReadoutOnGUI.cs" />
+    <Compile Include="Harmony Patches\CompTerrainPumpDry_AffectCell.cs" />
+    <Compile Include="Harmony Patches\TerrainGrid_SetTerrain.cs" />
     <Compile Include="ToggleablePatch.cs" />
-    <Compile Include="WaterDefs.cs" />
-    <Compile Include="IceDefs.cs" />
+    <Compile Include="Defs\WaterDefs.cs" />
+    <Compile Include="Defs\IceDefs.cs" />
     <Compile Include="WaterFreezes.cs" />
     <Compile Include="MapComponent_WaterFreezes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

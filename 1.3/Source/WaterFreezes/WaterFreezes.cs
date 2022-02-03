@@ -104,6 +104,8 @@ namespace WF
         }
 
         private string _iceRateBuffer;
+        private string _freezingMultiplierBuffer;
+        private string _thawingDivisorBuffer;
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
@@ -115,6 +117,11 @@ namespace WF
             listingStandard.Label("Anything higher than 2500 (1 in-game hour) has not been tested. Default is 1000 for a good balance.");
             listingStandard.Label("Versions before this setting was introduced had it set to 2500.");
             listingStandard.TextFieldNumeric<int>(ref WaterFreezesSettings.IceRate, ref _iceRateBuffer, 500, 2500);
+            listingStandard.Label("Take care when modifying the multiplier and divisor, relatively small changes will produce big effects!");
+            listingStandard.Label("The temperature is multiplied by this value before going into other calculations to produce the amount of freezing that occurs below freezing.");
+            listingStandard.TextFieldNumericLabeled<float>("Freezing Multiplier", ref WaterFreezesSettings.FreezingMultiplier, ref _freezingMultiplierBuffer, 1);
+            listingStandard.Label("The (negated) temperature is divided by this value before going into other calculations to produce the amount of thawing that occurs above freezing.");
+            listingStandard.TextFieldNumericLabeled<float>("Thawing Divisor", ref WaterFreezesSettings.ThawingDivisor, ref _thawingDivisorBuffer, 1);
             listingStandard.End();
             base.DoSettingsWindowContents(inRect);
         }
