@@ -310,10 +310,8 @@ namespace WF
 						}))
 							return; //We aren't going to freeze before there's ice adjacent to us.
 					}
-					var change = -temperature * (WaterFreezesSettings.FreezingMultiplier + PseudoWaterElevationGrid[i]) //* // //Based on temperature but sped up by a multiplier which takes into account surrounding terrain.
-						//(WaterDepthGrid[i] / 100) //* //Slow freezing by water depth per 100 water.
-						//((currentTerrain == TerrainDefOf.WaterDeep || currentTerrain == TerrainDefOf.WaterMovingChestDeep) ? .5f : 1f) //* //If it's deep water right now, slow it down more.
-						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
+					var change = -temperature //Based on negated temperature..
+						* (WaterFreezesSettings.FreezingFactor + PseudoWaterElevationGrid[i]) //But sped up by a multiplier which takes into account surrounding terrain.
 						/ 2500 * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					//Log.Message("[Water Freezes] Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					IceDepthGrid[i] += change; //Ice goes up..
@@ -336,11 +334,9 @@ namespace WF
 			{
 				if (IceDepthGrid[i] > 0)
 				{
-					var change = temperature / (WaterFreezesSettings.ThawingDivisor + PseudoWaterElevationGrid[i]) / // //Based on temperature but slowed down by a divisor which takes into account surrounding terrain.
-						(IceDepthGrid[i] / 100) //* //Slow thawing further by ice thickness per 100 ice.
-						//(currentTerrain == IceDefs.WF_LakeIceThick ? .5f : 1f) *  //If it's thick ice right now, slow it down more.
-						//((currentTerrain == IceDefs.WF_LakeIce || currentTerrain == IceDefs.WF_MarshIce) ? .75f : 1f) //* //If it's regular ice right now, slow it down a little less than thick.
-						//(.9f + (.1f * Rand.Value)) //10% of the rate is variable for flavor.
+					var change = temperature //Based on temperature..
+						/ (WaterFreezesSettings.ThawingFactor + PseudoWaterElevationGrid[i]) / //But slowed down by a divisor which takes into account surrounding terrain.
+						(IceDepthGrid[i] / 100) //Slow thawing further by ice thickness per 100 ice.
 						/ 2500 * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 					IceDepthGrid[i] -= change; //Ice goes down..
 					if (IceDepthGrid[i] < 0)
@@ -531,11 +527,12 @@ namespace WF
 				var thing = things[i];
 				if (thing == null)
 					continue; //Can't work on a null thing!
+				bool dueToAffordances = false;
+				bool shouldBreakdownOrDestroy = false;
 				if (thing is Building && thing.def.destroyable)
 				{
 					if (thing.def.defName == "VFE_TidalGenerator")
 						exception = true;
-					bool resolved = false;
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
 						{
@@ -546,50 +543,48 @@ namespace WF
 							{
 								if (exception && acceptanceReport.Reason == "VPE_NeedsDistance".Translate()) //If it's a tidal generator trying to see if it's too close to itself..
 									continue; //Don't destroy for this particular reason, irrelevant.
-								BreakdownOrDestroyBuilding(thing); //It should breakdown if relevant or else be destroyed.
-								resolved = true;
+								shouldBreakdownOrDestroy = true; 
 								break; //We don't need to check more if we've found a reason to not be here.
 							}
 						}
 					exception = false; //Reset bool.
-									   //Case isn't resolved and either had had no PlaceWorkers or it passed all their checks but it has an affordance that isn't being met.
-					if (!resolved &&
-						thing.TerrainAffordanceNeeded != null &&
+									   //Had no PlaceWorkers or it passed all their checks but it has an affordance that isn't being met.
+					if (thing.TerrainAffordanceNeeded != null &&
 						thing.TerrainAffordanceNeeded.defName != "" &&
 						terrain.affordances != null &&
 						!terrain.affordances.Contains(thing.TerrainAffordanceNeeded))
 					{
-						if (terrain.IsWater) //If the cell that triggered these checks is water..
-							thing.Destroy(DestroyMode.FailConstruction); //It is because it's losing foundation, so it should just be destroyed.
-						else //If the cell that triggered these checks is ice..
-							Log.Message("The terrain is not water, so we run the BreakdownOrDestroy thing.");
+						shouldBreakdownOrDestroy = true;
+						dueToAffordances = true;
+					}
+					if (shouldBreakdownOrDestroy)
+                    {
+						if (thing is ThingWithComps twc) //If it has comps..
+						{
+							var flickable = twc.GetComp<CompFlickable>();
+							var breakdown = twc.GetComp<CompBreakdownable>();
+							if (flickable != null && breakdown != null) //If it has both comps..
+							{
+								if (flickable.SwitchIsOn && !breakdown.BrokenDown) //If it's on and it isn't broken down..
+								{
+									breakdown.DoBreakdown(); //Cause breakdown.
+									flickable.DoFlick(); //Turn it off.
+								}
+							}
+							else if (!(dueToAffordances && terrain.IsWater) && breakdown != null) //It has breakdown but not flickable and this is not due to ice->water lacking affordance.
+							{
+								if (!breakdown.BrokenDown) //If it isn't already broken down..
+									breakdown.DoBreakdown(); //Cause breakdown.
+							}
+							else //It has either only flickable or neither, or it's got only breakdown but it's due to water->ice lacking affordance.
+								thing.Destroy(DestroyMode.FailConstruction);
+						}
+						else //No comps..
+							thing.Destroy(DestroyMode.FailConstruction);
 					}
 				}
 			}
         }
-
-		public void BreakdownOrDestroyBuilding(Thing thing)
-        {
-			if (thing is ThingWithComps twc) //If it has comps..
-			{
-				var flickable = twc.GetComp<CompFlickable>();
-				var breakdown = twc.GetComp<CompBreakdownable>();
-				if (flickable != null && breakdown != null) //If it has both comps..
-				{
-					if (flickable.SwitchIsOn)
-					{
-						breakdown.DoBreakdown(); //Cause breakdown.
-						flickable.DoFlick(); //Turn it off.
-					}
-				}
-				else if (breakdown != null) //It has breakdown but not flickable..
-					breakdown.DoBreakdown();
-				else //It has either only flickable or neither.
-					thing.Destroy(DestroyMode.FailConstruction);
-			}
-			else //No comps..
-				thing.Destroy(DestroyMode.FailConstruction);
-		}
 
 		public override void ExposeData()
 		{

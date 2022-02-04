@@ -25,6 +25,7 @@ namespace WF
                 var i = map.cellIndices.CellToIndex(c);
                 var comp = HarmonyPatchSharedData.GetCompForMap(map);
                 comp.AllWaterTerrainGrid[i] = comp.NaturalWaterTerrainGrid[i] = null; //Null out both all water and natural water for this tile on the grid.
+                comp.WaterDepthGrid[i] = 0;
             }
         }
     }

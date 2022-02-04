@@ -11,14 +11,14 @@ namespace WF
     public class WaterFreezesSettings : ModSettings
     {
         public static int IceRate = 1000;
-        public static float FreezingMultiplier = 4;
-        public static float ThawingDivisor = 2;
+        public static float FreezingFactor = 4f;
+        public static float ThawingFactor = 2f;
 
         public override void ExposeData()
         {
-            Scribe_Values.Look(ref IceRate, "IceRate");
-            Scribe_Values.Look(ref FreezingMultiplier, "FreezingMultiplier");
-            Scribe_Values.Look(ref ThawingDivisor, "ThawingDivisor");
+            Scribe_Values.Look(ref IceRate, "IceRate", 1000);
+            Scribe_Values.Look(ref FreezingFactor, "FreezingFactor", 4f);
+            Scribe_Values.Look(ref ThawingFactor, "ThawingFactor", 2f);
 
             base.ExposeData();
         }

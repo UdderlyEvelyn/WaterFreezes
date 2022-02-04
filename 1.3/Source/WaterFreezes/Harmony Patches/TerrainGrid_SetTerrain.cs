@@ -33,12 +33,18 @@ namespace WF
                     newTerr == TerrainDefOf.WaterMovingChestDeep) //If it's becoming water..
                     comp.AllWaterTerrainGrid[i] = newTerr;
                 else //It's water and becoming not water..
-                    if (!(comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterDeep ||
-                          comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterShallow ||
-                          comp.NaturalWaterTerrainGrid[i] == WaterDefs.Marsh ||
-                          comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterMovingShallow ||
-                          comp.NaturalWaterTerrainGrid[i] == TerrainDefOf.WaterMovingChestDeep)) //It's not natural water..
-                    comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
+                {
+                    var naturalWater = comp.NaturalWaterTerrainGrid[i];
+                    if (!(naturalWater == TerrainDefOf.WaterDeep ||
+                          naturalWater == TerrainDefOf.WaterShallow ||
+                          naturalWater == WaterDefs.Marsh ||
+                          naturalWater == TerrainDefOf.WaterMovingShallow ||
+                          naturalWater == TerrainDefOf.WaterMovingChestDeep)) //It's not natural water..
+                    {
+                        comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
+                        comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored.
+                    }
+                }
             }
         }
     }

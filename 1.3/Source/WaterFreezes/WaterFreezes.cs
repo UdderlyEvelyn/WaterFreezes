@@ -119,9 +119,9 @@ namespace WF
             listingStandard.TextFieldNumeric<int>(ref WaterFreezesSettings.IceRate, ref _iceRateBuffer, 500, 2500);
             listingStandard.Label("Take care when modifying the multiplier and divisor, relatively small changes will produce big effects!");
             listingStandard.Label("The temperature is multiplied by this value before going into other calculations to produce the amount of freezing that occurs below freezing.");
-            listingStandard.TextFieldNumericLabeled<float>("Freezing Multiplier", ref WaterFreezesSettings.FreezingMultiplier, ref _freezingMultiplierBuffer, 1);
+            listingStandard.TextFieldNumericLabeled<float>("Freezing Factor", ref WaterFreezesSettings.FreezingFactor, ref _freezingMultiplierBuffer, 1);
             listingStandard.Label("The (negated) temperature is divided by this value before going into other calculations to produce the amount of thawing that occurs above freezing.");
-            listingStandard.TextFieldNumericLabeled<float>("Thawing Divisor", ref WaterFreezesSettings.ThawingDivisor, ref _thawingDivisorBuffer, 1);
+            listingStandard.TextFieldNumericLabeled<float>("Thawing Factor", ref WaterFreezesSettings.ThawingFactor, ref _thawingDivisorBuffer, 1);
             listingStandard.End();
             base.DoSettingsWindowContents(inRect);
         }
