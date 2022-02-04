@@ -61,6 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Harmony Patches\TerrainGrid_DoTerrainChangedEffects.cs" />
+    <Compile Include="Harmony Patches\GenConstruct_CanBuildOnTerrain.cs" />
     <Compile Include="Harmony Patches\HarmonyPatchSharedData.cs" />
     <Compile Include="Harmony Patches\MouseoverReadout_MouseoverReadoutOnGUI.cs" />
     <Compile Include="Harmony Patches\CompTerrainPumpDry_AffectCell.cs" />

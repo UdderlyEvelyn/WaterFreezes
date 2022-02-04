@@ -10,7 +10,7 @@ using HarmonyLib;
 namespace WF
 {
     //This has the moisture pump mark terrain as not natural water anymore.
-    [HarmonyPatch(typeof(CompTerrainPumpDry), "AffectCell")]
+    [HarmonyPatch(typeof(CompTerrainPumpDry), "AffectCell", new Type[] { typeof(Map), typeof(IntVec3) })]
     public class CompTerrainPumpDry_AffectCell
     {
         internal static void Postfix(Map map, IntVec3 c)
