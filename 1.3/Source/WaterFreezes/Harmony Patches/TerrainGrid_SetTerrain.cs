@@ -23,17 +23,15 @@ namespace WF
                 oldTerrain == TerrainDefOf.WaterShallow ||
                 oldTerrain == WaterDefs.Marsh ||
                 oldTerrain == TerrainDefOf.WaterMovingShallow ||
-                oldTerrain == TerrainDefOf.WaterMovingChestDeep) //If it's the freezable type of water..
+                oldTerrain == TerrainDefOf.WaterMovingChestDeep) //If old terrain is freezable water..
             {
-                var comp = HarmonyPatchSharedData.GetCompForMap(___map);
-                if (newTerr == TerrainDefOf.WaterDeep ||
-                    newTerr == TerrainDefOf.WaterShallow ||
-                    newTerr == WaterDefs.Marsh ||
-                    newTerr == TerrainDefOf.WaterMovingShallow ||
-                    newTerr == TerrainDefOf.WaterMovingChestDeep) //If it's becoming water..
-                    comp.AllWaterTerrainGrid[i] = newTerr;
-                else //It's water and becoming not water..
+                if (!(newTerr == TerrainDefOf.WaterDeep ||
+                   newTerr == TerrainDefOf.WaterShallow ||
+                   newTerr == WaterDefs.Marsh ||
+                   newTerr == TerrainDefOf.WaterMovingShallow ||
+                   newTerr == TerrainDefOf.WaterMovingChestDeep)) //It's water and becoming NOT water..
                 {
+                    var comp = HarmonyPatchSharedData.GetCompForMap(___map);
                     var naturalWater = comp.NaturalWaterTerrainGrid[i];
                     if (!(naturalWater == TerrainDefOf.WaterDeep ||
                           naturalWater == TerrainDefOf.WaterShallow ||
@@ -41,10 +39,20 @@ namespace WF
                           naturalWater == TerrainDefOf.WaterMovingShallow ||
                           naturalWater == TerrainDefOf.WaterMovingChestDeep)) //It's not natural water..
                     {
-                        comp.AllWaterTerrainGrid[i] = null; //Mark it as not water.
-                        comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored.
+                        comp.AllWaterTerrainGrid[i] = null; //Stop tracking it.
+                        comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored (in case a mod besides us is doing this).
                     }
                 }
+            }
+            else //It wasn't water to begin with..
+            {
+                var comp = HarmonyPatchSharedData.GetCompForMap(___map);
+                if (newTerr == TerrainDefOf.WaterDeep ||
+                    newTerr == TerrainDefOf.WaterShallow ||
+                    newTerr == WaterDefs.Marsh ||
+                    newTerr == TerrainDefOf.WaterMovingShallow ||
+                    newTerr == TerrainDefOf.WaterMovingChestDeep) //But it's becoming water now..
+                    comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
             }
         }
     }
