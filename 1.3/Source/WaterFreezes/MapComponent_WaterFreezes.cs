@@ -512,16 +512,39 @@ namespace WF
 			return NaturalWaterTerrainGrid[map.cellIndices.CellToIndex(cell)];
         }
 
+		/// <summary>
+		/// Removes the natural water designation at a cell (called from outside as part of the API).
+		/// </summary>
+		/// <param name="cell"></param>
+		public void RemoveCellNaturalWater(IntVec3 cell)
+        {
+			NaturalWaterTerrainGrid[map.cellIndices.CellToIndex(cell)] = null;
+        }
+
+		/// <summary>
+		/// Removes all water at a cell (called from outside as part of the API).
+		/// </summary>
+		/// <param name="cell"></param>
+		public void RemoveCellWater(IntVec3 cell)
+        {
+			WaterDepthGrid[map.cellIndices.CellToIndex(cell)] = 0;
+        }
+
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
 		{
 			"RimWorld.PlaceWorker_Conduit",
+		};
+
+		public List<string> BreakdownOrDestroyExceptedPlaceWorkerFailureReasons = new()
+		{
+			"VPE_NeedsDistance".Translate(), //If it's a tidal generator trying to see if it's too close to itself..
+			"WFFT_NeedsDistance".Translate(), //If it's a fish trap or fish net trying to see if it's too close to itself..
 		};
 
 		public void BreakdownOrDestroyBuildingsInCellIfInvalid(IntVec3 cell)
 		{
 			var terrain = cell.GetTerrain(map);
 			var things = cell.GetThingList(map);
-			bool exception = false;
 			for (int i = 0; i < things.Count; i++)
 			{
 				var thing = things[i];
@@ -531,8 +554,6 @@ namespace WF
 				bool shouldBreakdownOrDestroy = false;
 				if (thing is Building && thing.def.destroyable)
 				{
-					if (thing.def.defName == "VFE_TidalGenerator")
-						exception = true;
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
 						{
@@ -541,14 +562,14 @@ namespace WF
 							var acceptanceReport = pw.AllowsPlacing(thing.def, thing.Position, thing.Rotation, map);
 							if (!acceptanceReport) //Failed PlaceWorker
 							{
-								if (exception && acceptanceReport.Reason == "VPE_NeedsDistance".Translate()) //If it's a tidal generator trying to see if it's too close to itself..
+								if (BreakdownOrDestroyExceptedPlaceWorkerFailureReasons.Contains(acceptanceReport.Reason)) //If it's a reason we don't care about.
 									continue; //Don't destroy for this particular reason, irrelevant.
+								Log.Message("PlaceWorker failed with reason: " + acceptanceReport.Reason);
 								shouldBreakdownOrDestroy = true; 
 								break; //We don't need to check more if we've found a reason to not be here.
 							}
 						}
-					exception = false; //Reset bool.
-									   //Had no PlaceWorkers or it passed all their checks but it has an affordance that isn't being met.
+					//Had no PlaceWorkers or it passed all their checks but it has an affordance that isn't being met.
 					if (thing.TerrainAffordanceNeeded != null &&
 						thing.TerrainAffordanceNeeded.defName != "" &&
 						terrain.affordances != null &&
@@ -558,7 +579,7 @@ namespace WF
 						dueToAffordances = true;
 					}
 					if (shouldBreakdownOrDestroy)
-                    {
+					{
 						if (thing is ThingWithComps twc) //If it has comps..
 						{
 							var flickable = twc.GetComp<CompFlickable>();
