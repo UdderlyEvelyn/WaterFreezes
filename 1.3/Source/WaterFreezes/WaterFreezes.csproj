@@ -61,8 +61,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Harmony Patches\DropCellFinder_GetBestShuttleLandingSpot.cs" />
-    <Compile Include="Harmony Patches\RoyalTitlePermitWorker_CallShuttle_GetReportFromCell.cs" />
     <Compile Include="Harmony Patches\TerrainGrid_DoTerrainChangedEffects.cs" />
     <Compile Include="Harmony Patches\GenConstruct_CanBuildOnTerrain.cs" />
     <Compile Include="Harmony Patches\HarmonyPatchSharedData.cs" />

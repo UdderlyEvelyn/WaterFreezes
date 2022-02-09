@@ -530,6 +530,12 @@ namespace WF
 			WaterDepthGrid[map.cellIndices.CellToIndex(cell)] = 0;
         }
 
+		public List<string> BreakdownOrDestroyExceptedDefNames = new()
+		{
+			"Shuttle",
+			"ShuttleCrashed",
+		};
+
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
 		{
 			"RimWorld.PlaceWorker_Conduit",
@@ -554,6 +560,8 @@ namespace WF
 				bool shouldBreakdownOrDestroy = false;
 				if (thing is Building && thing.def.destroyable)
 				{
+					if (BreakdownOrDestroyExceptedDefNames.Contains(thing.def.defName)) //If it's in the list of things to skip..
+						continue; //Skip this one.
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
 						{
