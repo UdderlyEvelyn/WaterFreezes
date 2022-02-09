@@ -534,6 +534,9 @@ namespace WF
 		{
 			"Shuttle",
 			"ShuttleCrashed",
+			//The below are new, might not stay in favor of other solutions, dunno.
+			"AncientHermeticCrate",
+			"AncientSecurityCrate",
 		};
 
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
@@ -558,9 +561,11 @@ namespace WF
 					continue; //Can't work on a null thing!
 				bool dueToAffordances = false;
 				bool shouldBreakdownOrDestroy = false;
-				if (thing is Building && thing.def.destroyable)
+				if (thing is Building building && thing.def.destroyable)
 				{
-					if (BreakdownOrDestroyExceptedDefNames.Contains(thing.def.defName)) //If it's in the list of things to skip..
+					if ((thing.questTags != null && thing.questTags.Count > 0) || //If it's marked for a quest..
+						(thing.def.defName.StartsWith("Ancient") || thing.def.defName.StartsWith("VFEA_")) || //If it's ancient stuff..
+						BreakdownOrDestroyExceptedDefNames.Contains(thing.def.defName)) //Or if it's in the list of things to skip..
 						continue; //Skip this one.
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)

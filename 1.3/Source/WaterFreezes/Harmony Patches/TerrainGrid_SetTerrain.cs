@@ -32,6 +32,8 @@ namespace WF
                    newTerr == TerrainDefOf.WaterMovingChestDeep)) //It's water and becoming NOT water..
                 {
                     var comp = HarmonyPatchSharedData.GetCompForMap(___map);
+                    if (comp == null || comp.NaturalWaterTerrainGrid == null || comp.AllWaterTerrainGrid == null || comp.WaterDepthGrid == null) //If comp or any relevant grid is null..
+                        return; //Don't try.
                     var naturalWater = comp.NaturalWaterTerrainGrid[i];
                     if (!(naturalWater == TerrainDefOf.WaterDeep ||
                           naturalWater == TerrainDefOf.WaterShallow ||
@@ -47,12 +49,14 @@ namespace WF
             else //It wasn't water to begin with..
             {
                 var comp = HarmonyPatchSharedData.GetCompForMap(___map);
+                if (comp == null || comp.AllWaterTerrainGrid == null) //If comp or grid is null..
+                    return; //Don't try.
                 if (newTerr == TerrainDefOf.WaterDeep ||
                     newTerr == TerrainDefOf.WaterShallow ||
                     newTerr == WaterDefs.Marsh ||
                     newTerr == TerrainDefOf.WaterMovingShallow ||
                     newTerr == TerrainDefOf.WaterMovingChestDeep) //But it's becoming water now..
-                    comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
+                        comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
             }
         }
     }
