@@ -23,8 +23,8 @@ namespace WF
                 terrain == TerrainDefOf.WaterMovingChestDeep) //If it's the freezable type of water..
             {
                 var i = map.cellIndices.CellToIndex(c);
-                var comp = HarmonyPatchSharedData.GetCompForMap(map);
-                comp.AllWaterTerrainGrid[i] = comp.NaturalWaterTerrainGrid[i] = null; //Null out both all water and natural water for this tile on the grid.
+                var comp = WaterFreezesCompCache.GetFor(map);
+                comp.AllWaterTerrainGrid[i] = null;
                 comp.WaterDepthGrid[i] = 0;
             }
         }

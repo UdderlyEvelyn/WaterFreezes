@@ -15,6 +15,7 @@ namespace WF
         //This updates the AllWaterTerrainGrid when terrain is changed to be which water type it is, or null, depending on the old/new terrain (with exception for if it's natural water preventing nulling).
         internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map)
         {
+            bool recalculatePseudoWaterElevationAroundCell = false;
             int i = ___map.cellIndices.CellToIndex(c);
             var oldTerrain = ___map.terrainGrid.TerrainAt(i);
             if (oldTerrain == newTerr) //If we're not actually changing anything..
@@ -31,7 +32,7 @@ namespace WF
                    newTerr == TerrainDefOf.WaterMovingShallow ||
                    newTerr == TerrainDefOf.WaterMovingChestDeep)) //It's water and becoming NOT water..
                 {
-                    var comp = HarmonyPatchSharedData.GetCompForMap(___map);
+                    var comp = WaterFreezesCompCache.GetFor(___map);
                     if (comp == null || comp.NaturalWaterTerrainGrid == null || comp.AllWaterTerrainGrid == null || comp.WaterDepthGrid == null) //If comp or any relevant grid is null..
                         return; //Don't try.
                     var naturalWater = comp.NaturalWaterTerrainGrid[i];
@@ -43,12 +44,13 @@ namespace WF
                     {
                         comp.AllWaterTerrainGrid[i] = null; //Stop tracking it.
                         comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored (in case a mod besides us is doing this).
+                        comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
                     }
                 }
             }
             else //It wasn't water to begin with..
             {
-                var comp = HarmonyPatchSharedData.GetCompForMap(___map);
+                var comp = WaterFreezesCompCache.GetFor(___map);
                 if (comp == null || comp.AllWaterTerrainGrid == null) //If comp or grid is null..
                     return; //Don't try.
                 if (newTerr == TerrainDefOf.WaterDeep ||
@@ -56,7 +58,10 @@ namespace WF
                     newTerr == WaterDefs.Marsh ||
                     newTerr == TerrainDefOf.WaterMovingShallow ||
                     newTerr == TerrainDefOf.WaterMovingChestDeep) //But it's becoming water now..
-                        comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
+                {
+                    comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
+                    comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
+                }
             }
         }
     }

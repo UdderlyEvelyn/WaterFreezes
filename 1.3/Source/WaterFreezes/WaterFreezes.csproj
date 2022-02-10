@@ -61,9 +61,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DebugActionsWaterFreezes.cs" />
     <Compile Include="Harmony Patches\TerrainGrid_DoTerrainChangedEffects.cs" />
     <Compile Include="Harmony Patches\GenConstruct_CanBuildOnTerrain.cs" />
-    <Compile Include="Harmony Patches\HarmonyPatchSharedData.cs" />
+    <Compile Include="WaterFreezesCompCache.cs" />
     <Compile Include="Harmony Patches\MouseoverReadout_MouseoverReadoutOnGUI.cs" />
     <Compile Include="Harmony Patches\CompTerrainPumpDry_AffectCell.cs" />
     <Compile Include="Harmony Patches\TerrainGrid_SetTerrain.cs" />
