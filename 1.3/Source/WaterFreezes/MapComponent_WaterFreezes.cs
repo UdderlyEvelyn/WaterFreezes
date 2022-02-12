@@ -408,7 +408,7 @@ namespace WF
 				ThawCell(cell, currentTerrain);
 			else
 			{
-				if (currentTerrain.bridge)// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge
+				if (currentTerrain.bridge || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge
 					return; //We're not updating the terrain, cuz it's under the bridge.
 				if (ice < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold..
 				{
@@ -459,7 +459,7 @@ namespace WF
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			if (NaturalWaterTerrainGrid[i] != null) //If it's natural water..
 			{
-				if (!(currentTerrain.bridge))// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If it's not a bridge.
+				if (!(currentTerrain.bridge || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If it's not a bridge.
 				{
 					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
 					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
@@ -497,7 +497,7 @@ namespace WF
 											  underTerrain == TerrainDefOf.WaterMovingShallow || 
 											  underTerrain == TerrainDefOf.WaterMovingChestDeep)) //If there was under-terrain and it's water.
 			{
-				if (WaterDepthGrid[i] > 0 && !(currentTerrain.bridge))// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If there's water there and it isn't under a bridge..
+				if (WaterDepthGrid[i] > 0 && !(currentTerrain.bridge || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If there's water there and it isn't under a bridge..
 				{
 					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
 					map.terrainGrid.SetUnderTerrain(cell, null); //Clear the under-terrain
