@@ -27,6 +27,8 @@ namespace WF
         {
             if (!compCachePerMap.ContainsKey(map.uniqueID)) //If not cached..
                 compCachePerMap.Add(map.uniqueID, comp); //Cache.
+            else
+                compCachePerMap[map.uniqueID] = comp; //Reassign cache.
         }
     }
 }

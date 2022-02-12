@@ -13,11 +13,15 @@ namespace WF
     public class TerrainGrid_SetTerrain
     {
         //This updates the AllWaterTerrainGrid when terrain is changed to be which water type it is, or null, depending on the old/new terrain (with exception for if it's natural water preventing nulling).
-        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map)
+        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map, TerrainDef __state)
         {
-            bool recalculatePseudoWaterElevationAroundCell = false;
+            __state = ___map.terrainGrid.TerrainAt(c);
+        }
+
+        internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map, TerrainDef __state)
+        {
             int i = ___map.cellIndices.CellToIndex(c);
-            var oldTerrain = ___map.terrainGrid.TerrainAt(i);
+            var oldTerrain = __state;
             if (oldTerrain == newTerr) //If we're not actually changing anything..
                 return; //Who cares?
             if (oldTerrain == TerrainDefOf.WaterDeep ||
@@ -33,7 +37,7 @@ namespace WF
                    newTerr == TerrainDefOf.WaterMovingChestDeep)) //It's water and becoming NOT water..
                 {
                     var comp = WaterFreezesCompCache.GetFor(___map);
-                    if (comp == null || comp.NaturalWaterTerrainGrid == null || comp.AllWaterTerrainGrid == null || comp.WaterDepthGrid == null) //If comp or any relevant grid is null..
+                    if (comp == null || !comp.Initialized) //If comp is null or uninitialized..
                         return; //Don't try.
                     var naturalWater = comp.NaturalWaterTerrainGrid[i];
                     if (!(naturalWater == TerrainDefOf.WaterDeep ||
@@ -51,7 +55,7 @@ namespace WF
             else //It wasn't water to begin with..
             {
                 var comp = WaterFreezesCompCache.GetFor(___map);
-                if (comp == null || comp.AllWaterTerrainGrid == null) //If comp or grid is null..
+                if (comp == null || !comp.Initialized) //If comp is null or uninitialized..
                     return; //Don't try.
                 if (newTerr == TerrainDefOf.WaterDeep ||
                     newTerr == TerrainDefOf.WaterShallow ||

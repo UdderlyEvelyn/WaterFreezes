@@ -16,6 +16,16 @@ namespace WF
 		{
 			var map = Find.CurrentMap;
 			var comp = WaterFreezesCompCache.GetFor(map);
+			//Clear out any existing ice instantly so we aren't left with stuff a reinit can't comprehend.
+			for (int i = 0; i < comp.AllWaterTerrainGrid.Length; i++)
+			{
+				var allWaterTerrain = comp.AllWaterTerrainGrid[i];
+				if (allWaterTerrain != null && map.terrainGrid.TerrainAt(i) != allWaterTerrain)
+				{
+					comp.IceDepthGrid[i] = 0;
+					map.terrainGrid.SetTerrain(map.cellIndices.IndexToCell(i), allWaterTerrain);
+				}
+			}
 			comp.AllWaterTerrainGrid = null;
 			comp.NaturalWaterTerrainGrid = null;
 			comp.WaterDepthGrid = null;

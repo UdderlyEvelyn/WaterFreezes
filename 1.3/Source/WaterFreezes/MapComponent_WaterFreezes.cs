@@ -11,7 +11,7 @@ namespace WF
 {
     public class MapComponent_WaterFreezes : MapComponent
     {
-		bool init;
+		public bool Initialized;
         public TerrainDef[] NaturalWaterTerrainGrid;
 		public TerrainDef[] AllWaterTerrainGrid;
 		public float[] IceDepthGrid;
@@ -32,18 +32,24 @@ namespace WF
 
 		public MapComponent_WaterFreezes(Map map) : base(map)
 		{
-
+			Log.Message("[Water Freezes] New MapComponent constructed (for map " + map.uniqueID + ") adding it to the cache.");
+			WaterFreezesCompCache.SetFor(map, this);
 		}
 
         public override void MapGenerated()
 		{
-			WaterFreezesCompCache.SetFor(map, this);
 			Initialize();
 		}
 
-		public void Initialize()
+        public override void MapRemoved()
+        {
+			Log.Message("[Water Freezes] Removing MapComponent from cache due to map removal (for map " + map.uniqueID + ").");
+			WaterFreezesCompCache.compCachePerMap.Remove(map.uniqueID); //Yeet from cache so it can die in the GC.
+        }
+
+        public void Initialize()
 		{
-			Log.Message("[Water Freezes] MapComponent Initializing..");
+			Log.Message("[Water Freezes] MapComponent Initializing (for map uniqueId " + map.uniqueID + "\")..");
 			if (WaterDepthGrid == null) //If we have no water depth grid..
 			{
 				Log.Message("[Water Freezes] Instantiating water depth grid..");
@@ -86,16 +92,15 @@ namespace WF
 			}
 			if (PseudoWaterElevationGrid == null)
 			{
-				Log.Message("[Water Freezes] Generating pseudo water elevation grid..");
 				PseudoWaterElevationGrid = new float[map.cellIndices.NumGridCells];
 				UpdatePseudoWaterElevationGrid();
 			}
-			init = true;
+			Initialized = true;
 		}
 
 		public override void MapComponentTick()
 		{
-			if (!init) //If we aren't initialized..
+			if (!Initialized) //If we aren't initialized..
 				Initialize(); //Initialize it!
 			if (Find.TickManager.TicksGame % WaterFreezesSettings.IceRate != 0) //If it's not once per hour..
 				return; //Don't execute the rest, throttling measure.
@@ -136,7 +141,7 @@ namespace WF
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void UpdatePseudoWaterElevationGridForCell(IntVec3 cell)
-        {
+		{
 			int i = map.cellIndices.CellToIndex(cell);
 			var adjacentCells = GenAdjFast.AdjacentCells8Way(cell);
 			float pseudoElevationScore = 0;
@@ -403,7 +408,7 @@ namespace WF
 				ThawCell(cell, currentTerrain);
 			else
 			{
-				if (currentTerrain.bridge) //If it's a bridge
+				if (currentTerrain.bridge)// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge
 					return; //We're not updating the terrain, cuz it's under the bridge.
 				if (ice < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold..
 				{
@@ -454,7 +459,7 @@ namespace WF
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			if (NaturalWaterTerrainGrid[i] != null) //If it's natural water..
 			{
-				if (!currentTerrain.bridge)
+				if (!(currentTerrain.bridge))// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If it's not a bridge.
 				{
 					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
 					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
@@ -492,7 +497,7 @@ namespace WF
 											  underTerrain == TerrainDefOf.WaterMovingShallow || 
 											  underTerrain == TerrainDefOf.WaterMovingChestDeep)) //If there was under-terrain and it's water.
 			{
-				if (WaterDepthGrid[i] > 0 && !currentTerrain.bridge) //If there's water there and it isn't under a bridge..
+				if (WaterDepthGrid[i] > 0 && !(currentTerrain.bridge))// || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If there's water there and it isn't under a bridge..
 				{
 					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
 					map.terrainGrid.SetUnderTerrain(cell, null); //Clear the under-terrain
