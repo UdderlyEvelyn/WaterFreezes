@@ -61,8 +61,7 @@ namespace WF
 				NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
 				for (int i = 0; i < map.cellIndices.NumGridCells; i++)
 				{
-					var c = map.cellIndices.IndexToCell(i);
-					var t = c.GetTerrain(map);
+					var t = map.terrainGrid.TerrainAt(i);
 					if (t == TerrainDefOf.WaterDeep || t == TerrainDefOf.WaterMovingChestDeep)
 					{
 						NaturalWaterTerrainGrid[i] = t;
@@ -77,6 +76,20 @@ namespace WF
                     {
 						NaturalWaterTerrainGrid[i] = t;
 						WaterDepthGrid[i] = MaxWaterMarsh;
+                    }
+					else if (t.IsBridge())
+                    {
+						var ut = map.terrainGrid.UnderTerrainAt(i);
+						if (ut.IsWater)
+						{
+							NaturalWaterTerrainGrid[i] = ut; 
+							if (ut == TerrainDefOf.WaterDeep || ut == TerrainDefOf.WaterMovingChestDeep)
+								WaterDepthGrid[i] = MaxWaterDeep;
+							else if (ut == TerrainDefOf.WaterShallow || ut == TerrainDefOf.WaterMovingShallow)
+								WaterDepthGrid[i] = MaxWaterShallow;
+							else if (ut == WaterDefs.Marsh)
+								WaterDepthGrid[i] = MaxWaterMarsh;
+						}
                     }
 				}
 			}
