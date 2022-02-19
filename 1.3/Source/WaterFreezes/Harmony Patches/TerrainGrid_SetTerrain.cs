@@ -63,8 +63,17 @@ namespace WF
                     newTerr == TerrainDefOf.WaterMovingShallow ||
                     newTerr == TerrainDefOf.WaterMovingChestDeep) //But it's becoming water now..
                 {
-                    comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
-                    comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
+                    var naturalWater = comp.NaturalWaterTerrainGrid[i];
+                    if (!(naturalWater == TerrainDefOf.WaterDeep ||
+                          naturalWater == TerrainDefOf.WaterShallow ||
+                          naturalWater == WaterDefs.Marsh ||
+                          naturalWater == TerrainDefOf.WaterMovingShallow ||
+                          naturalWater == TerrainDefOf.WaterMovingChestDeep)) //It's not natural water..
+                    {
+                        comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
+                        comp.SetMaxWaterByDef(i, newTerr, updateIceStage: false);
+                        comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
+                    }
                 }
             }
         }

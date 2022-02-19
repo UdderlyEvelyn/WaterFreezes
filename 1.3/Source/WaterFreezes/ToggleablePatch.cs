@@ -104,7 +104,7 @@ namespace WF
         {
             if (CanPatch && !Applied)
             {
-                Log.Message("[Water Freezes] " + (Name != null ? ("Applying patch \"" + Name + "\", patching ") : "Patching ") + TargetDescriptionString + "..");
+                WaterFreezes.Log("" + (Name != null ? ("Applying patch \"" + Name + "\", patching ") : "Patching ") + TargetDescriptionString + "..");
                 if (targetDef == null)
                     targetDef = DefDatabase<T>.GetNamed(TargetDefName);
                 try
@@ -113,7 +113,7 @@ namespace WF
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("[Water Freezes] Error " + (Name != null ? ("applying patch \"" + Name + "\"") : "patching ") + ". Most likely you have another mod that already patches " + TargetDescriptionString + ". Remove that mod or disable this patch in the mod options.\n\n" + ex.ToString());
+                    WaterFreezes.Log("Error " + (Name != null ? ("applying patch \"" + Name + "\"") : "patching ") + ". Most likely you have another mod that already patches " + TargetDescriptionString + ". Remove that mod or disable this patch in the mod options.\n\n" + ex.ToString(), ErrorLevel.Warning);
                 }
                 Applied = true; //Set it as applied.
             }
@@ -126,7 +126,7 @@ namespace WF
         {
             if (Applied) //If it's been applied already.
             {
-                Log.Message("[Water Freezes] " + (Name != null ? ("Removing patch \"" + Name + "\", unpatching ") : "Unpatching ") + TargetDescriptionString + "..");
+                WaterFreezes.Log("" + (Name != null ? ("Removing patch \"" + Name + "\", unpatching ") : "Unpatching ") + TargetDescriptionString + "..");
                 if (targetDef == null)
                     targetDef = DefDatabase<T>.GetNamed(TargetDefName);
                 try
@@ -135,7 +135,7 @@ namespace WF
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("[Water Freezes] Error " + (Name != null ? ("removing patch \"" + Name + "\"") : "unpatching ") + ". Most likely you have another mod that already patches " + TargetDescriptionString + ", and it failed to patch in the first place. Remove that mod or disable this patch in the mod options.\n\n" + ex.ToString());
+                    WaterFreezes.Log("Error " + (Name != null ? ("removing patch \"" + Name + "\"") : "unpatching ") + ". Most likely you have another mod that already patches " + TargetDescriptionString + ", and it failed to patch in the first place. Remove that mod or disable this patch in the mod options.\n\n" + ex.ToString(), ErrorLevel.Warning);
                 }
                 Applied = false; //Set it as not applied anymore.
             }
@@ -190,7 +190,7 @@ namespace WF
         {
             if (!Applied)
             {
-                Log.Message("[Water Freezes] Applying patches in patch group \"" + Name + "\"..");
+                WaterFreezes.Log("Applying patches in patch group \"" + Name + "\"..");
                 foreach (var patch in Patches)
                     patch.Apply();
                 Applied = true;
@@ -204,7 +204,7 @@ namespace WF
         {
             if (Applied)
             {
-                Log.Message("[Water Freezes] Removing patches in patch group \"" + Name + "\"..");
+                WaterFreezes.Log("Removing patches in patch group \"" + Name + "\"..");
                 foreach (var patch in Patches)
                     patch.Remove();
                 Applied = false;

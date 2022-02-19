@@ -7,6 +7,7 @@ using RimWorld;
 using Verse;
 using HarmonyLib;
 using UnityEngine;
+using System.Reflection;
 
 namespace WF
 {
@@ -68,9 +69,9 @@ namespace WF
 
         static WaterFreezes()
         {
-            var harmony = new Harmony("UdderlyEvelyn.LakesCanFreeze");
+            var harmony = new Harmony("UdderlyEvelyn.WaterFreezes");
             harmony.PatchAll(); 
-            Log.Message("[Water Freezes] Initializing..");
+            Log("Initializing..");
             Patches.Add(WatermillIsFlickablePatch);
             Patches.Add(VPEAdvancedWatermillIsFlickablePatch);
             Patches.Add(VPETidalGeneratorIsFlickablePatch);
@@ -83,10 +84,54 @@ namespace WF
         /// <param name="reason">the reason to process them, optional, shown in logging</param>
         public static void ProcessPatches(string reason = null)
         {
-            Log.Message("[Water Freezes] Processing patches" + (reason != null ? " (" + reason + ")" : "") + "..");
+            Log("Processing patches" + (reason != null ? " (" + reason + ")" : "") + "..");
             foreach (var patch in Patches)
                 patch.Process();
         }
+
+        /// <summary>
+        /// The assembly version of the mod.
+        /// </summary>
+        public static string Version = Assembly.GetCallingAssembly().GetName().Version.ToString();
+        /// <summary>
+        /// Logging function for the mod, prints the message with the appropriate method based on errorLevel, optionally ignoring the "stop logging limit".
+        /// </summary>
+        /// <param name="message">the message to log</param>
+        /// <param name="errorLevel">the type of logging method to use</param>
+        /// <param name="errorOnceKey">if doing ErrorOnce logging, the unique key to use (defaults to 0)</param>
+        /// <param name="ignoreStopLoggingLimit">if true, resets the message count before logging the message</param>
+        public static void Log(string message, ErrorLevel errorLevel = ErrorLevel.Message, int errorOnceKey = 0, bool ignoreStopLoggingLimit = false)
+        {
+            if (ignoreStopLoggingLimit)
+                Verse.Log.ResetMessageCount();
+            var text = "[Water Freezes " + Version + "] " + message;
+            switch (errorLevel)
+            {
+                case ErrorLevel.Message:
+                    Verse.Log.Message(text);
+                    break;
+                case ErrorLevel.Warning:
+                    Verse.Log.Warning(text);
+                    break;
+                case ErrorLevel.Error:
+                    Verse.Log.Error(text);
+                    break;
+                case ErrorLevel.ErrorOnce:
+                    Verse.Log.ErrorOnce(text, errorOnceKey);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Determines which logging method to use through the WaterFreezes.Log method.
+    /// </summary>
+    public enum ErrorLevel
+    {
+        Message,
+        Warning,
+        Error,
+        ErrorOnce,
     }
 
     public class WaterFreezesMod : Mod
