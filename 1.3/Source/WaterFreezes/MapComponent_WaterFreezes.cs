@@ -438,7 +438,8 @@ namespace WF
 			var isRiver = water == TerrainDefOf.WaterMovingShallow || water == TerrainDefOf.WaterMovingChestDeep;
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = map.terrainGrid.TerrainAt(i);// map.terrainGrid.topGrid[i]; //Get it.
-			if (iceDepth/waterDepth < ThresholdThinIce) //If there's no ice..
+			var percentIce = iceDepth / (iceDepth + waterDepth);
+			if (float.IsNaN(percentIce) || percentIce < ThresholdThinIce) //If there's no meaningful amount of ice.. (the IsNaN is for the case where 0/0)
 				ThawCell(cell, currentTerrain);
 			else
 			{

@@ -13,16 +13,20 @@ namespace WF
     public class TerrainGrid_SetTerrain
     {
         //This updates the AllWaterTerrainGrid when terrain is changed to be which water type it is, or null, depending on the old/new terrain (with exception for if it's natural water preventing nulling).
-        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map, TerrainDef __state)
+        internal static void Prefix(IntVec3 c, TerrainDef newTerr, Map ___map, ref TerrainDef __state)
         {
             __state = ___map.terrainGrid.TerrainAt(c);
+            //if (__state != newTerr)
+            //    WaterFreezes.Log("SetTerrain Prefix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + newTerr.defName + "\"..");
         }
 
-        internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map, TerrainDef __state)
+        internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map, ref TerrainDef __state)
         {
+            //if (__state != newTerr)
+            //    WaterFreezes.Log("SetTerrain Postfix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + newTerr.defName + "\"..");
             int i = ___map.cellIndices.CellToIndex(c);
             var oldTerrain = __state;
-            if (oldTerrain == newTerr) //If we're not actually changing anything..
+            if (oldTerrain == newTerr || oldTerrain == null) //If we're not actually changing anything or it had no terrain previously..
                 return; //Who cares?
             if (oldTerrain == TerrainDefOf.WaterDeep ||
                 oldTerrain == TerrainDefOf.WaterShallow ||
@@ -46,6 +50,7 @@ namespace WF
                           naturalWater == TerrainDefOf.WaterMovingShallow ||
                           naturalWater == TerrainDefOf.WaterMovingChestDeep)) //It's not natural water..
                     {
+                        //WaterFreezes.Log("SetTerrain Postfix: Unnatural water going to non-water, nulling AllTerrain and zeroing water depth, then updating pseudo water elevation grid.");
                         comp.AllWaterTerrainGrid[i] = null; //Stop tracking it.
                         comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored (in case a mod besides us is doing this).
                         comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);

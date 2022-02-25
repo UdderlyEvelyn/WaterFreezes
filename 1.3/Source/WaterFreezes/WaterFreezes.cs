@@ -89,10 +89,12 @@ namespace WF
                 patch.Process();
         }
 
+        private static Version version = Assembly.GetAssembly(typeof(WaterFreezes)).GetName().Version;
         /// <summary>
         /// The assembly version of the mod.
         /// </summary>
-        public static string Version = Assembly.GetCallingAssembly().GetName().Version.ToString();
+        public static string Version = version.Major + "." + version.Minor + "." + version.Build;
+
         /// <summary>
         /// Logging function for the mod, prints the message with the appropriate method based on errorLevel, optionally ignoring the "stop logging limit".
         /// </summary>

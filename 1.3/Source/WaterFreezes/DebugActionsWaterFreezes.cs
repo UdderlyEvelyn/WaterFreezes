@@ -85,19 +85,19 @@ namespace WF
 				Messages.Message("Attempted to set natural water status to null where it was already null.", MessageTypeDefOf.RejectInput);
 		}
 
-		[DebugAction("Water Freezes", "Clear Natural Water Status/Water Depth", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
-		public static void DebugAction_ClearNaturalWaterStatusAndWaterDepth()
+		[DebugAction("Water Freezes", "Clear Natural Water Status/Depth", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		public static void DebugAction_ClearNaturalWaterStatusAndDepth()
 		{
-			ClearNaturalWaterStatusAndWaterDepth(Find.CurrentMap, UI.MouseCell());
+			ClearNaturalWaterStatusAndDepth(Find.CurrentMap, UI.MouseCell());
 		}
 
-		[DebugAction("Water Freezes (Rect)", "Clear Natural Water Status/Water Depth", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
-		public static void DebugAction_ClearNaturalWaterStatusAndWaterDepth_Rect()
+		[DebugAction("Water Freezes (Rect)", "Clear Natural Water Status/Depth", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		public static void DebugAction_ClearNaturalWaterStatusAndDepth_Rect()
 		{
-			DoForRect(ClearNaturalWaterStatusAndWaterDepth);
+			DoForRect(ClearNaturalWaterStatusAndDepth);
 		}
 
-		public static void ClearNaturalWaterStatusAndWaterDepth(Map map, IntVec3 cell)
+		public static void ClearNaturalWaterStatusAndDepth(Map map, IntVec3 cell)
 		{
 			var index = map.cellIndices.CellToIndex(cell);
 			var comp = WaterFreezesCompCache.GetFor(map);
