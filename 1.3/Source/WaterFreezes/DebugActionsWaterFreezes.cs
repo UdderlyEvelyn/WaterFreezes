@@ -52,12 +52,17 @@ namespace WF
 		public static void SetAsNaturalWater(Map map, IntVec3 cell)
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
-			var index = map.cellIndices.CellToIndex(cell);
-			var currentTerrain = cell.GetTerrain(map);
-			if (comp.IsAnyWater(index, currentTerrain))
+			var index = map.cellIndices.CellToIndex(cell); 
+			var currentTerrain = map.terrainGrid.TerrainAt(index);
+			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
+			var currentIsWater = currentTerrain.IsFreezableWater();
+			var underIsWater = underTerrain.IsFreezableWater();
+			if (currentIsWater)
 				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = currentTerrain;
+			else if (underIsWater)
+				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = underTerrain;
 			else
-				Messages.Message("Attempted to set natural water status for non-water terrain.", MessageTypeDefOf.RejectInput);
+				Messages.Message("Attempted to set natural water status for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
 		}
 
 		[DebugAction("Water Freezes", "Clear Natural Water Status", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -127,23 +132,22 @@ namespace WF
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
-			if (comp.AllWaterTerrainGrid[index] == null)
+			var water = comp.AllWaterTerrainGrid[index];
+			if (water == null)
 			{
-				Messages.Message("Attempted to set water depth to max for non-water terrain.", MessageTypeDefOf.RejectInput);
+				Messages.Message("Attempted to set water depth to max for non-water (or unrecognized water) terrain.", MessageTypeDefOf.RejectInput);
 				return; //Abort.
 			}
-			var currentTerrain = map.terrainGrid.TerrainAt(index);
-			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
 			float maxForTerrain = 0;
-			if (comp.IsAnyShallowWater(index, currentTerrain, underTerrain))
+			if (water.IsShallowDepth())
 				maxForTerrain = comp.MaxWaterShallow;
-			else if (comp.IsAnyDeepWater(index, currentTerrain, underTerrain))
+			else if (water.IsDeepDepth())
 				maxForTerrain = comp.MaxWaterDeep;
-			else if (comp.IsMarsh(index, currentTerrain, underTerrain))
+			else if (water == WaterDefs.Marsh)
 				maxForTerrain = comp.MaxWaterMarsh;
-			Messages.Message("Set depth to " + maxForTerrain + " where it was " + comp.WaterDepthGrid[index] + " previously, terrain is \"" + currentTerrain.defName + "\".", MessageTypeDefOf.TaskCompletion);
+			Messages.Message("Set depth to " + maxForTerrain + " where it was " + comp.WaterDepthGrid[index] + " previously, water type is \"" + water.defName + "\".", MessageTypeDefOf.TaskCompletion);
 			comp.WaterDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell, currentTerrain);
+			comp.UpdateIceStage(cell);
 		}
 
 		[DebugAction("Water Freezes", "Set Water Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -168,7 +172,7 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set water depth to zero for non-water terrain.", MessageTypeDefOf.RejectInput);
+				Messages.Message("Attempted to set water depth to zero for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
 		}
 
 		[DebugAction("Water Freezes", "Set Ice Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -187,22 +191,21 @@ namespace WF
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
-			if (comp.AllWaterTerrainGrid[index] == null)
+			var water = comp.AllWaterTerrainGrid[index];
+			if (water == null)
 			{
-				Messages.Message("Attempted to set ice depth to max for non-water terrain.", MessageTypeDefOf.RejectInput);
+				Messages.Message("Attempted to set ice depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
 				return; //Abort.
 			}
-			var currentTerrain = map.terrainGrid.TerrainAt(index);
-			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
 			float maxForTerrain = 0;
-			if (comp.IsAnyShallowWater(index, currentTerrain, underTerrain))
+			if (water.IsShallowDepth())
 				maxForTerrain = comp.MaxIceShallow;
-			else if (comp.IsAnyDeepWater(index, currentTerrain, underTerrain))
+			else if (water.IsDeepDepth())
 				maxForTerrain = comp.MaxIceDeep;
-			else if (comp.IsMarsh(index, currentTerrain, underTerrain))
+			else if (water == WaterDefs.Marsh)
 				maxForTerrain = comp.MaxIceMarsh;
 			comp.IceDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell, currentTerrain);
+			comp.UpdateIceStage(cell);
 		}
 
 		[DebugAction("Water Freezes", "Set Ice Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -262,22 +265,27 @@ namespace WF
 			var index = map.cellIndices.CellToIndex(cell);
 			var currentTerrain = map.terrainGrid.TerrainAt(index);
 			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
-			if (comp.IsAnyWater(index, currentTerrain, underTerrain))
-				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = currentTerrain;
+			var currentIsWater = currentTerrain.IsFreezableWater();
+			var underIsWater = underTerrain.IsFreezableWater();
+			TerrainDef water;
+			if (currentIsWater)
+				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = water = currentTerrain;
+			else if (underIsWater)
+				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = water = underTerrain;
 			else
 			{
-				Messages.Message("Attempted to set natural water and water depth to max for non-water terrain.", MessageTypeDefOf.RejectInput);
+				Messages.Message("Attempted to set natural water and water depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
 				return; //Abort, not water.
 			}
 			float maxForTerrain = 0;
-			if (comp.IsAnyShallowWater(index, currentTerrain, underTerrain))
+			if (water.IsShallowDepth())
 				maxForTerrain = comp.MaxWaterShallow;
-			else if (comp.IsAnyDeepWater(index, currentTerrain, underTerrain))
+			else if (water.IsDeepDepth())
 				maxForTerrain = comp.MaxWaterDeep;
-			else if (comp.IsMarsh(index, currentTerrain, underTerrain))
+			else if (water == WaterDefs.Marsh)
 				maxForTerrain = comp.MaxWaterMarsh;
 			comp.WaterDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell, currentTerrain);
+			comp.UpdateIceStage(cell, currentTerrain, underTerrain);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

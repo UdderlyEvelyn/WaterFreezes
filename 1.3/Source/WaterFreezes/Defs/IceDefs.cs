@@ -18,17 +18,5 @@ namespace WF
         public static TerrainDef WF_RiverIceThin = DefDatabase<TerrainDef>.GetNamed("WF_RiverIceThin");
         public static TerrainDef WF_RiverIce = DefDatabase<TerrainDef>.GetNamed("WF_RiverIce");
         public static TerrainDef WF_RiverIceThick = DefDatabase<TerrainDef>.GetNamed("WF_RiverIceThick");
-
-        public static bool IsIce(TerrainDef def)
-        {
-            return def == WF_LakeIceThin ||
-                   def == WF_LakeIce ||
-                   def == WF_LakeIceThick ||
-                   def == WF_MarshIceThin ||
-                   def == WF_MarshIce ||
-                   def == WF_RiverIceThin ||
-                   def == WF_RiverIce ||
-                   def == WF_RiverIceThick;
-        }
     }
 }

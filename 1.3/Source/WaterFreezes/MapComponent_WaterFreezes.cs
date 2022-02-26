@@ -137,7 +137,7 @@ namespace WF
 					currentTerrain == WaterDefs.Marsh ||
 					AllWaterTerrainGrid[i] != null)
 				{
-					UpdateIceForTemperature(cell, currentTerrain);
+					UpdateIceForTemperature(cell);
 					UpdateIceStage(cell, currentTerrain);
 				}
 			}
@@ -189,170 +189,29 @@ namespace WF
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsTerrainDef(int i, TerrainDef def, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		public void SetMaxWaterByDef(int i, TerrainDef water = null, bool updateIceStage = true)
 		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			//WaterFreezes.Log("Checking if index " + i + " is " + def.defName + ".. currentTerrain: " + (currentTerrain == def) + ", underTerrain: " + (underTerrain == def) + ", AllWaterTerrainGrid: " + (AllWaterTerrainGrid[i] == def)); ;
-			return currentTerrain == def || underTerrain == def || AllWaterTerrainGrid[i] == def;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsMarsh(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-        {
-			return IsTerrainDef(i, WaterDefs.Marsh, currentTerrain, underTerrain);
-        }
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnyShallowWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			return IsTerrainDef(i, TerrainDefOf.WaterShallow, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, TerrainDefOf.WaterMovingShallow, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnyDeepWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			return IsTerrainDef(i, TerrainDefOf.WaterDeep, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, TerrainDefOf.WaterMovingChestDeep, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsShallowWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-        {
-			return IsTerrainDef(i, TerrainDefOf.WaterShallow, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsDeepWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			return IsTerrainDef(i, TerrainDefOf.WaterDeep, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsMovingShallowWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			return IsTerrainDef(i, TerrainDefOf.WaterMovingShallow, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsMovingDeepWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			return IsTerrainDef(i, TerrainDefOf.WaterMovingChestDeep, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsLakeIce(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsTerrainDef(i, IceDefs.WF_LakeIceThin, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_LakeIce, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_LakeIceThick, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsRiverIce(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsTerrainDef(i, IceDefs.WF_RiverIceThin, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_RiverIce, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_RiverIceThick, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsRiver(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsTerrainDef(i, IceDefs.WF_RiverIceThin, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_RiverIce, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_RiverIceThick, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, TerrainDefOf.WaterMovingShallow, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, TerrainDefOf.WaterMovingChestDeep, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsMarshIce(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsTerrainDef(i, IceDefs.WF_MarshIceThin, currentTerrain, underTerrain) ||
-				   IsTerrainDef(i, IceDefs.WF_MarshIce, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsAnyWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-        {
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsShallowWater(i, currentTerrain, underTerrain) ||
-				   IsDeepWater(i, currentTerrain, underTerrain) ||
-				   IsMarsh(i, currentTerrain, underTerrain) ||
-				   IsMovingShallowWater(i, currentTerrain, underTerrain) ||
-				   IsMovingDeepWater(i, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsLakeWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsShallowWater(i, currentTerrain, underTerrain) ||
-				   IsDeepWater(i, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool IsRiverWater(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-			return IsMovingShallowWater(i, currentTerrain, underTerrain) ||
-				   IsMovingDeepWater(i, currentTerrain, underTerrain);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetMaxWaterByDef(int i, TerrainDef currentTerrain = null, TerrainDef underTerrain = null, bool updateIceStage = true)
-		{
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
+			if (water == null) //Was not passed in..
+				water = AllWaterTerrainGrid[i]; //Get it.
 			float maxForTerrain = 0;
-			if (IsAnyShallowWater(i, currentTerrain, underTerrain))
+			if (water.IsShallowDepth())
 				maxForTerrain = MaxWaterShallow;
-			else if (IsAnyDeepWater(i, currentTerrain, underTerrain))
+			else if (water.IsDeepDepth())
 				maxForTerrain = MaxWaterDeep;
-			else if (IsMarsh(i, currentTerrain, underTerrain))
+			else if (water == WaterDefs.Marsh)
 				maxForTerrain = MaxWaterMarsh;
 			WaterDepthGrid[i] = maxForTerrain;
 			if (updateIceStage)
-				UpdateIceStage(map.cellIndices.IndexToCell(i), currentTerrain);
+				UpdateIceStage(map.cellIndices.IndexToCell(i));
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UpdateIceForTemperature(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		public void UpdateIceForTemperature(IntVec3 cell)
 		{
 			var temperature = GenTemperature.GetTemperatureForCell(cell, map);
 			int i = map.cellIndices.CellToIndex(cell);
-			if (IsRiver(i, currentTerrain)) //If it's part of a river..
+			var water = AllWaterTerrainGrid[i];
+			if (water.IsRiverWater() || water.IsRiverIce()) //If it's part of a river..
 				temperature += 10; //Offset by 10 degrees because the moving water introduces kinetic energy.
 			if (temperature == 0) //If it's 0degC..
 				return; //We don't update when ambiguous.
@@ -370,14 +229,7 @@ namespace WF
 							if (adjacentCellIndex < 0 || adjacentCellIndex >= map.terrainGrid.topGrid.Length) //If it's a negative index or it's a larger index than the map's grid length (faster to get topGrid.Length than use property on the cellIndices).
 								return false;
 							var adjacentCellTerrain = map.terrainGrid.TerrainAt(adjacentCellIndex);
-							return adjacentCellTerrain == IceDefs.WF_LakeIceThin ||
-								   adjacentCellTerrain == IceDefs.WF_LakeIce ||
-								   adjacentCellTerrain == IceDefs.WF_LakeIceThick ||
-								   adjacentCellTerrain == IceDefs.WF_MarshIceThin ||
-								   adjacentCellTerrain == IceDefs.WF_MarshIce ||
-								   adjacentCellTerrain == IceDefs.WF_RiverIceThin ||
-								   adjacentCellTerrain == IceDefs.WF_RiverIce ||
-								   adjacentCellTerrain == IceDefs.WF_RiverIceThick;
+							return adjacentCellTerrain.IsThawableIce();
 						}))
 							return; //We aren't going to freeze before there's ice adjacent to us.
 					}
@@ -386,13 +238,13 @@ namespace WF
 						/ 2500f * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
 																//WaterFreezes.Log("Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
 					var currentIce = IceDepthGrid[i] += change; //Ice goes up..
-					if (IsShallowWater(i, currentTerrain, underTerrain) || IsMovingShallowWater(i, currentTerrain))
+					if (water.IsShallowDepth())
 						if (currentIce > MaxIceShallow)
 							IceDepthGrid[i] = MaxIceShallow;
-					else if (IsDeepWater(i, currentTerrain, underTerrain) || IsMovingDeepWater(i, currentTerrain)) 
+					else if (water.IsDeepDepth()) 
 						if (currentIce > MaxIceDeep)
 							IceDepthGrid[i] = MaxIceDeep;
-					else if (IsMarsh(i, currentTerrain, underTerrain))
+					else if (water.IsMarsh())
 						if (currentIce > MaxIceMarsh)
 							IceDepthGrid[i] = MaxIceMarsh;
 					if ((WaterDepthGrid[i] -= change) < 0) //Water depth goes down.. if that value is less than zero now, then..
@@ -415,11 +267,11 @@ namespace WF
 					else //Only mess with water grid if ice grid had ice to melt.
 					{
 						var currentWater = WaterDepthGrid[i] += change; //Water depth goes up..
-						if (currentWater > MaxWaterShallow && (IsShallowWater(i, currentTerrain, underTerrain) || IsMovingShallowWater(i, currentTerrain, underTerrain))) //If shallow underneath and too much water,
+						if (currentWater > MaxWaterShallow && water.IsShallowDepth()) //If shallow underneath and too much water,
 							WaterDepthGrid[i] = MaxWaterShallow; //Cap it.
-						else if (currentWater > MaxWaterDeep && (IsDeepWater(i, currentTerrain, underTerrain) || IsMovingDeepWater(i, currentTerrain, underTerrain))) //If deep underneath and too much water,
+						else if (currentWater > MaxWaterDeep && water.IsDeepDepth()) //If deep underneath and too much water,
 							WaterDepthGrid[i] = MaxWaterDeep; //Cap it.
-						else if (currentWater > MaxWaterMarsh && IsMarsh(i, currentTerrain, underTerrain)) //If marsh underneath and too much water,
+						else if (currentWater > MaxWaterMarsh && water.IsMarsh()) //If marsh underneath and too much water,
 							WaterDepthGrid[i] = MaxWaterMarsh; //Cap it.
 					}
 				}
@@ -427,67 +279,81 @@ namespace WF
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UpdateIceStage(IntVec3 cell, TerrainDef currentTerrain = null)
+		public void UpdateIceStage(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);
 			float iceDepth = IceDepthGrid[i];
 			float waterDepth = WaterDepthGrid[i];
 			var water = AllWaterTerrainGrid[i];
-			var isLake = water == TerrainDefOf.WaterDeep || water == TerrainDefOf.WaterShallow;
-			var isMarsh = water == WaterDefs.Marsh;
-			var isRiver = water == TerrainDefOf.WaterMovingShallow || water == TerrainDefOf.WaterMovingChestDeep;
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = map.terrainGrid.TerrainAt(i);// map.terrainGrid.topGrid[i]; //Get it.
-			var percentIce = iceDepth / (iceDepth + waterDepth);
-			if (float.IsNaN(percentIce) || percentIce < ThresholdThinIce) //If there's no meaningful amount of ice.. (the IsNaN is for the case where 0/0)
-				ThawCell(cell, currentTerrain);
-			else
+			if (underTerrain == null)
+				underTerrain = map.terrainGrid.UnderTerrainAt(i);
+			var appropriateTerrain = GetAppropriateTerrainFor(cell, water, waterDepth, iceDepth);
+			if (currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge..
 			{
-				if (currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge
-					return; //We're not updating the terrain, cuz it's under the bridge.
-				if (iceDepth < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold..
-				{
-					//If it's water then it's freezing now..
-					if (currentTerrain == TerrainDefOf.WaterDeep ||
-						currentTerrain == TerrainDefOf.WaterShallow ||
-						currentTerrain == WaterDefs.Marsh ||
-						currentTerrain == TerrainDefOf.WaterMovingShallow ||
-						currentTerrain == TerrainDefOf.WaterMovingChestDeep)
-						map.terrainGrid.SetUnderTerrain(cell, currentTerrain); //Store the water in under-terrain.
-					if (isLake && currentTerrain != IceDefs.WF_LakeIceThin) 
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThin);
-					else if (isMarsh && currentTerrain != IceDefs.WF_MarshIceThin)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIceThin);
-					else if (isRiver && currentTerrain != IceDefs.WF_RiverIceThin)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_RiverIceThin);
-				}
-				else if (iceDepth < ThresholdThickIce) //If it's between regular ice and thick ice in depth..
-				{
-					if (isLake && currentTerrain != IceDefs.WF_LakeIce)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIce);
-					else if (isMarsh && currentTerrain != IceDefs.WF_MarshIce)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_MarshIce);
-					else if (isRiver && currentTerrain != IceDefs.WF_RiverIce)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_RiverIce);
-				}
-				else //Only thick left..
-				{
-					//Note, there is no thick marsh ice.
-					if (isLake && currentTerrain != IceDefs.WF_LakeIceThick)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_LakeIceThick);
-					else if (isRiver && currentTerrain != IceDefs.WF_RiverIceThick)
-						map.terrainGrid.SetTerrain(cell, IceDefs.WF_RiverIceThick);
-				}
-				BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
+				//We deal with underTerrain.
+				if (underTerrain != appropriateTerrain)
+					map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
+				else
+					CheckAndRefillCell(cell, currentTerrain, underTerrain);
 			}
+			else //Not a bridge..
+			{ 
+				//We deal with regular terrain.
+				if (currentTerrain != appropriateTerrain)
+					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
+				else
+					CheckAndRefillCell(cell, currentTerrain, underTerrain);
+			}
+			BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void ThawCell(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		public TerrainDef GetAppropriateTerrainFor(IntVec3 cell, TerrainDef waterTerrain, float waterDepth, float iceDepth)
 		{
-			int i = map.cellIndices.CellToIndex(cell);
+			var isLake = waterTerrain.IsLakeWater();
+			var isMarsh = waterTerrain == WaterDefs.Marsh;
+			var isRiver = waterTerrain.IsRiverWater();
+			var percentIce = iceDepth / (iceDepth + waterDepth);
+			if (float.IsNaN(percentIce) || percentIce < ThresholdThinIce) //If there's no meaningful amount of ice.. (the IsNaN is for the case where 0/0)
+				return waterTerrain;
+			else if (iceDepth < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold..
+			{
+				if (isLake)
+					return IceDefs.WF_LakeIceThin;
+				else if (isMarsh)
+					return IceDefs.WF_MarshIceThin;
+				else if (isRiver)
+					return IceDefs.WF_RiverIceThin;
+			}
+			else if (iceDepth < ThresholdThickIce) //If it's between regular ice and thick ice in depth..
+			{
+				if (isLake)
+					return IceDefs.WF_LakeIce;
+				else if (isMarsh)
+					return IceDefs.WF_MarshIce;
+				else if (isRiver)
+					return IceDefs.WF_RiverIce;
+			}
+			else //Only thick left..
+			{
+				//Note, there is no thick marsh ice.
+				if (isLake)
+					return IceDefs.WF_LakeIceThick;
+				else if (isRiver)
+					return IceDefs.WF_RiverIceThick;
+			}
+			WaterFreezes.Log("Reached the end of GetAppropriateTerrainFor without finding anything, this should not happen!");
+			return waterTerrain;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void CheckAndRefillCell(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		{
 			if (cell.GetTemperature(map) <= 0) //If it's at or below freezing..
 				return; //Do not thaw!
+			int i = map.cellIndices.CellToIndex(cell);
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = cell.GetTerrain(map); //Get it.
 			if (underTerrain == null) //If it wasn't passed in..
@@ -495,11 +361,6 @@ namespace WF
 			var naturalWater = NaturalWaterTerrainGrid[i];
 			if (naturalWater != null) //If it's natural water..
 			{
-				if (!(currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If it's not a bridge.
-				{
-					map.terrainGrid.SetTerrain(cell, NaturalWaterTerrainGrid[i]); //Make sure terrain is set to the right thing.
-					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
-				}
 				var season = GenLocalDate.Season(map);
 				if (season == Season.Spring || season == Season.Summer || season == Season.PermanentSummer) //If it's the right season..
 				{
@@ -525,19 +386,6 @@ namespace WF
 						if (WaterDepthGrid[i] > MaxWaterMarsh) //If it's too full..
 							WaterDepthGrid[i] = MaxWaterMarsh; //Cap it.
                     }
-				}
-			}
-			else if (underTerrain != null && (underTerrain == TerrainDefOf.WaterShallow || 
-											  underTerrain == TerrainDefOf.WaterDeep || 
-											  underTerrain == WaterDefs.Marsh || 
-											  underTerrain == TerrainDefOf.WaterMovingShallow || 
-											  underTerrain == TerrainDefOf.WaterMovingChestDeep)) //If there was under-terrain and it's water.
-			{
-				if (WaterDepthGrid[i] > 0 && !(currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null))) //If there's water there and it isn't under a bridge..
-				{
-					map.terrainGrid.SetTerrain(cell, underTerrain); //Set the top layer to the under-terrain
-					map.terrainGrid.SetUnderTerrain(cell, null); //Clear the under-terrain
-					BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 				}
 			}
 		}

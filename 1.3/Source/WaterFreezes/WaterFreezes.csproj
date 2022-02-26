@@ -65,6 +65,8 @@
     <Compile Include="DebugActionsWaterFreezes.cs" />
     <Compile Include="Harmony Patches\TerrainGrid_DoTerrainChangedEffects.cs" />
     <Compile Include="Harmony Patches\GenConstruct_CanBuildOnTerrain.cs" />
+    <Compile Include="Harmony Patches\TerrainGrid_SetUnderTerrain.cs" />
+    <Compile Include="TerrainExtension_WaterFreezes.cs" />
     <Compile Include="TerrainDefExtensions.cs" />
     <Compile Include="TerrainSystemOverhaul_Interop.cs" />
     <Compile Include="WaterFreezesCompCache.cs" />

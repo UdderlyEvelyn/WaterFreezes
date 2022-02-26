@@ -58,6 +58,7 @@ namespace WF
                 float ice = comp.IceDepthGrid[ind];
                 float water = comp.WaterDepthGrid[ind];
                 bool naturalWater = comp.NaturalWaterTerrainGrid[ind] != null;
+                //string allWater = comp.AllWaterTerrainGrid[ind]?.defName ?? "null";
                 //float pseudoElevation = comp.PseudoWaterElevationGrid[ind];
                 if (ice > 0)
                 {
@@ -74,6 +75,8 @@ namespace WF
                     Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Natural Water");
                     rectY += 19f;
                 }
+                //Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), allWater);
+                //rectY += 19f;
                 //if (pseudoElevation > 0)
                 //{
                 //    Widgets.Label(new Rect(BotLeft.x, (float)UI.screenHeight - BotLeft.y - rectY, 999f, 999f), "Elevation " + pseudoElevation.ToString());
