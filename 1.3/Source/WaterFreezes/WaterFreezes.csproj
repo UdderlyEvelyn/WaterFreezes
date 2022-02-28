@@ -66,7 +66,7 @@
     <Compile Include="Harmony Patches\TerrainGrid_DoTerrainChangedEffects.cs" />
     <Compile Include="Harmony Patches\GenConstruct_CanBuildOnTerrain.cs" />
     <Compile Include="Harmony Patches\TerrainGrid_SetUnderTerrain.cs" />
-    <Compile Include="TerrainExtension_WaterFreezes.cs" />
+    <Compile Include="TerrainExtension_WaterStats.cs" />
     <Compile Include="TerrainDefExtensions.cs" />
     <Compile Include="TerrainSystemOverhaul_Interop.cs" />
     <Compile Include="WaterFreezesCompCache.cs" />
@@ -80,6 +80,7 @@
     <Compile Include="MapComponent_WaterFreezes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WaterFreezesSettings.cs" />
+    <Compile Include="WaterFreezesStatCache.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -57,7 +57,7 @@ namespace WF
                     {
                         WaterFreezes.Log("SetTerrain Postfix: Non-water going to unnatural water, setting AllTerrain and maxing water depth, then updating pseudo water elevation grid.");
                         comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
-                        comp.SetMaxWaterByDef(i, updateIceStage: false);
+                        comp.SetMaxWaterByDef(i, newTerr, updateIceStage: false);
                     }
                     comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
                 }

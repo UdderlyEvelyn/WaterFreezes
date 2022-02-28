@@ -49,20 +49,20 @@ namespace WF
 			DoForRect(SetAsNaturalWater);
 		}
 
-		public static void SetAsNaturalWater(Map map, IntVec3 cell)
+		public static bool SetAsNaturalWater(Map map, IntVec3 cell, bool sendMessage = true)
 		{
+			var index = map.cellIndices.CellToIndex(cell);
 			var comp = WaterFreezesCompCache.GetFor(map);
-			var index = map.cellIndices.CellToIndex(cell); 
-			var currentTerrain = map.terrainGrid.TerrainAt(index);
-			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
-			var currentIsWater = currentTerrain.IsFreezableWater();
-			var underIsWater = underTerrain.IsFreezableWater();
-			if (currentIsWater)
-				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = currentTerrain;
-			else if (underIsWater)
-				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = underTerrain;
+			var water = comp.AllWaterTerrainGrid[index];
+			if (water != null)
+				comp.NaturalWaterTerrainGrid[index] = water;
 			else
-				Messages.Message("Attempted to set natural water status for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set natural water status for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Clear Natural Water Status", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -77,7 +77,7 @@ namespace WF
 			DoForRect(ClearNaturalWaterStatus);
 		}
 
-		public static void ClearNaturalWaterStatus(Map map, IntVec3 cell)
+		public static bool ClearNaturalWaterStatus(Map map, IntVec3 cell, bool sendMessage = true)
 		{
 			var index = map.cellIndices.CellToIndex(cell);
 			var comp = WaterFreezesCompCache.GetFor(map);
@@ -87,7 +87,12 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set natural water status to null where it was already null.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set natural water status to null where it was already null.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Clear Natural Water Status/Depth", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -102,7 +107,7 @@ namespace WF
 			DoForRect(ClearNaturalWaterStatusAndDepth);
 		}
 
-		public static void ClearNaturalWaterStatusAndDepth(Map map, IntVec3 cell)
+		public static bool ClearNaturalWaterStatusAndDepth(Map map, IntVec3 cell, bool sendMessage = true)
 		{
 			var index = map.cellIndices.CellToIndex(cell);
 			var comp = WaterFreezesCompCache.GetFor(map);
@@ -113,7 +118,12 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set natural water status to null where it was already null.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set natural water status to null where it was already null.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Set Water Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -128,26 +138,19 @@ namespace WF
 			DoForRect(SetWaterDepthToMax);
 		}
 
-		public static void SetWaterDepthToMax(Map map, IntVec3 cell)
+		public static bool SetWaterDepthToMax(Map map, IntVec3 cell, bool sendMessage = true)
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
 			var water = comp.AllWaterTerrainGrid[index];
 			if (water == null)
 			{
-				Messages.Message("Attempted to set water depth to max for non-water (or unrecognized water) terrain.", MessageTypeDefOf.RejectInput);
-				return; //Abort.
+				if (sendMessage)
+					Messages.Message("Attempted to set water depth to max for non-water (or unrecognized water) terrain.", MessageTypeDefOf.RejectInput);	
+				return false; //Abort.
 			}
-			float maxForTerrain = 0;
-			if (water.IsShallowDepth())
-				maxForTerrain = comp.MaxWaterShallow;
-			else if (water.IsDeepDepth())
-				maxForTerrain = comp.MaxWaterDeep;
-			else if (water == WaterDefs.Marsh)
-				maxForTerrain = comp.MaxWaterMarsh;
-			Messages.Message("Set depth to " + maxForTerrain + " where it was " + comp.WaterDepthGrid[index] + " previously, water type is \"" + water.defName + "\".", MessageTypeDefOf.TaskCompletion);
-			comp.WaterDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell);
+			comp.SetMaxWaterByDef(index, water);
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Set Water Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -162,7 +165,7 @@ namespace WF
 			DoForRect(SetWaterDepthToZero);
 		}
 
-		public static void SetWaterDepthToZero(Map map, IntVec3 cell)
+		public static bool SetWaterDepthToZero(Map map, IntVec3 cell, bool sendMessage = true)
         {
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
@@ -172,7 +175,12 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set water depth to zero for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set water depth to zero for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Set Ice Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -187,25 +195,21 @@ namespace WF
 			DoForRect(SetIceDepthToMax);
 		}
 
-		public static void SetIceDepthToMax(Map map, IntVec3 cell)
+		public static bool SetIceDepthToMax(Map map, IntVec3 cell, bool sendMessage = true)
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
 			var water = comp.AllWaterTerrainGrid[index];
 			if (water == null)
 			{
-				Messages.Message("Attempted to set ice depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
-				return; //Abort.
+				if (sendMessage)
+					Messages.Message("Attempted to set ice depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+				return false; //Abort.
 			}
-			float maxForTerrain = 0;
-			if (water.IsShallowDepth())
-				maxForTerrain = comp.MaxIceShallow;
-			else if (water.IsDeepDepth())
-				maxForTerrain = comp.MaxIceDeep;
-			else if (water == WaterDefs.Marsh)
-				maxForTerrain = comp.MaxIceMarsh;
-			comp.IceDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell);
+			var extension = WaterFreezesStatCache.GetExtension(water);
+			comp.IceDepthGrid[index] = extension.MaxIceDepth;
+			comp.UpdateIceStage(cell, extension);
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Set Ice Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -220,7 +224,7 @@ namespace WF
 			DoForRect(SetIceDepthToZero);
 		}
 
-		public static void SetIceDepthToZero(Map map, IntVec3 cell)
+		public static bool SetIceDepthToZero(Map map, IntVec3 cell, bool sendMessage = true)
         {
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
@@ -230,7 +234,12 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set ice depth to zero for non-water terrain.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set ice depth to zero for non-water terrain.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
 		[DebugAction("Water Freezes", "Set Ice/Water Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
@@ -239,7 +248,13 @@ namespace WF
 			SetIceAndWaterDepthToZero(Find.CurrentMap, UI.MouseCell());
 		}
 
-		public static void SetIceAndWaterDepthToZero(Map map, IntVec3 cell)
+		[DebugAction("Water Freezes (Rect)", "Set Ice/Water Depth To Zero", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		public static void DebugAction_SetIceAndWaterDepthToZero_Rect()
+		{
+			DoForRect(SetIceAndWaterDepthToZero);
+		}
+
+		public static bool SetIceAndWaterDepthToZero(Map map, IntVec3 cell, bool sendMessage = true)
 		{
 			var comp = WaterFreezesCompCache.GetFor(map);
 			var index = map.cellIndices.CellToIndex(cell);
@@ -250,46 +265,47 @@ namespace WF
 				comp.UpdateIceStage(cell);
 			}
 			else
-				Messages.Message("Attempted to set ice & water depth to zero for non-water terrain.", MessageTypeDefOf.RejectInput);
+			{
+				if (sendMessage)
+					Messages.Message("Attempted to set ice & water depth to zero for non-water terrain.", MessageTypeDefOf.RejectInput);
+				return false;
+			}
+			return true;
 		}
 
-		[DebugAction("Water Freezes", "Set Natural Water/Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		[DebugAction("Water Freezes", "Set Nat. Water/Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
 		public static void DebugAction_SetNaturalWaterAndWaterDepthToMax()
 		{
 			SetNaturalWaterAndWaterDepthToMax(Find.CurrentMap, UI.MouseCell());
 		}
 
-		private static void SetNaturalWaterAndWaterDepthToMax(Map map, IntVec3 cell)
-        {
-			var comp = WaterFreezesCompCache.GetFor(map);
+		[DebugAction("Water Freezes (Rect)", "Set Nat. Water/Depth To Max", actionType = DebugActionType.ToolMap, allowedGameStates = AllowedGameStates.PlayingOnMap)]
+		public static void DebugAction_SetNaturalWaterAndDepthToMax_Rect()
+		{
+			DoForRect(SetNaturalWaterAndWaterDepthToMax);
+		}
+
+		private static bool SetNaturalWaterAndWaterDepthToMax(Map map, IntVec3 cell, bool sendMessage = true)
+		{
 			var index = map.cellIndices.CellToIndex(cell);
-			var currentTerrain = map.terrainGrid.TerrainAt(index);
-			var underTerrain = map.terrainGrid.UnderTerrainAt(index);
-			var currentIsWater = currentTerrain.IsFreezableWater();
-			var underIsWater = underTerrain.IsFreezableWater();
-			TerrainDef water;
-			if (currentIsWater)
-				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = water = currentTerrain;
-			else if (underIsWater)
-				comp.NaturalWaterTerrainGrid[index] = comp.AllWaterTerrainGrid[index] = water = underTerrain;
+			var comp = WaterFreezesCompCache.GetFor(map);
+			var water = comp.AllWaterTerrainGrid[index];
+			if (water != null)
+				comp.NaturalWaterTerrainGrid[index] = water;
 			else
 			{
-				Messages.Message("Attempted to set natural water and water depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
-				return; //Abort, not water.
+				if (sendMessage)
+					Messages.Message("Attempted to set natural water and water depth to max for non-water (or unsupported water) terrain.", MessageTypeDefOf.RejectInput);
+				return false; //Abort, not water.
 			}
-			float maxForTerrain = 0;
-			if (water.IsShallowDepth())
-				maxForTerrain = comp.MaxWaterShallow;
-			else if (water.IsDeepDepth())
-				maxForTerrain = comp.MaxWaterDeep;
-			else if (water == WaterDefs.Marsh)
-				maxForTerrain = comp.MaxWaterMarsh;
-			comp.WaterDepthGrid[index] = maxForTerrain;
-			comp.UpdateIceStage(cell, currentTerrain, underTerrain);
+			var extension = WaterFreezesStatCache.GetExtension(water);
+			comp.WaterDepthGrid[index] = extension.MaxWaterDepth;
+			comp.UpdateIceStage(cell, extension);
+			return true;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static void DoForRect(Action<Map, IntVec3> action)
+		private static void DoForRect(Func<Map, IntVec3, bool, bool> action)
         {
 			Map map = Find.CurrentMap;
 			DebugTool tool = null;
@@ -299,10 +315,20 @@ namespace WF
 				firstCorner = UI.MouseCell();
 				DebugTools.curTool = new DebugTool("second corner...", delegate
 				{
+					int failures = 0;
+					int cellCount = 0;
 					IntVec3 secondCorner = UI.MouseCell();
 					foreach (IntVec3 cell in CellRect.FromLimits(firstCorner, secondCorner).ClipInsideMap(map))
-						action(map, cell);
+					{
+						if (!action(map, cell, false))
+							failures++;
+						cellCount++;
+					}
 					DebugTools.curTool = tool;
+					if (failures > 0)
+						Messages.Message("There were " + failures + " failures to perform the requested operation on " + cellCount + " cells.", MessageTypeDefOf.TaskCompletion);
+					else
+						Messages.Message("Successfully performed the operation on " + cellCount + " cells.", MessageTypeDefOf.TaskCompletion);
 				}, firstCorner);
 			});
 			DebugTools.curTool = tool;

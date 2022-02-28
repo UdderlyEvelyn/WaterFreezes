@@ -27,9 +27,7 @@ namespace WF
             },
             Unpatch = def =>
             {
-                var comps = def.comps.Where(c => c is CompProperties_Flickable);
-                foreach (var comp in comps)
-                    def.comps.Remove(comp);                
+                def.comps.RemoveAll(comp => comp is CompProperties_Flickable);          
             },
         }; 
         public static ToggleablePatch<ThingDef> VPEAdvancedWatermillIsFlickablePatch = new ToggleablePatch<ThingDef>
@@ -44,9 +42,7 @@ namespace WF
             },
             Unpatch = def =>
             {
-                var comps = def.comps.Where(c => c is CompProperties_Flickable);
-                foreach (var comp in comps)
-                    def.comps.Remove(comp);
+                def.comps.RemoveAll(c => c is CompProperties_Flickable);
             },
         };
         public static ToggleablePatch<ThingDef> VPETidalGeneratorIsFlickablePatch = new ToggleablePatch<ThingDef>
@@ -61,9 +57,7 @@ namespace WF
             },
             Unpatch = def =>
             {
-                var comps = def.comps.Where(c => c is CompProperties_Flickable);
-                foreach (var comp in comps)
-                    def.comps.Remove(comp);
+                def.comps.RemoveAll(c => c is CompProperties_Flickable);
             },
         };
 
@@ -76,6 +70,7 @@ namespace WF
             Patches.Add(VPEAdvancedWatermillIsFlickablePatch);
             Patches.Add(VPETidalGeneratorIsFlickablePatch);
             ProcessPatches();
+            WaterFreezesStatCache.Initialize();
         }
 
         /// <summary>

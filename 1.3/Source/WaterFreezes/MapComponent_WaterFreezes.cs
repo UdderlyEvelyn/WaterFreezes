@@ -21,14 +21,6 @@ namespace WF
 		public float ThresholdThinIce = .15f; //This is ratio of ice to water, unlike other thresholds.
 		public float ThresholdIce = 50;
 		public float ThresholdThickIce = 110;
-		//Used for lakes *and* rivers.
-		public float MaxWaterDeep = 400;
-		public float MaxWaterShallow = 100;
-		public float MaxIceDeep = 120;
-		public float MaxIceShallow = 100;
-		//Used for marshes.
-		public float MaxWaterMarsh = 70;
-		public float MaxIceMarsh = 70;
 
 		public MapComponent_WaterFreezes(Map map) : base(map)
 		{
@@ -61,34 +53,19 @@ namespace WF
 				NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
 				for (int i = 0; i < map.cellIndices.NumGridCells; i++)
 				{
-					var t = map.terrainGrid.TerrainAt(i);
-					if (t == TerrainDefOf.WaterDeep || t == TerrainDefOf.WaterMovingChestDeep)
+					var currentTerrain = map.terrainGrid.TerrainAt(i);
+					if (currentTerrain.IsFreezableWater())
 					{
-						NaturalWaterTerrainGrid[i] = t;
-						WaterDepthGrid[i] = MaxWaterDeep;
+						NaturalWaterTerrainGrid[i] = currentTerrain;
+						WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(currentTerrain).MaxWaterDepth;
 					}
-					else if (t == TerrainDefOf.WaterShallow || t == TerrainDefOf.WaterMovingShallow)
+					else if (currentTerrain.IsBridge())
                     {
-						NaturalWaterTerrainGrid[i] = t;
-						WaterDepthGrid[i] = MaxWaterShallow;
-                    }
-					else if (t == WaterDefs.Marsh)
-                    {
-						NaturalWaterTerrainGrid[i] = t;
-						WaterDepthGrid[i] = MaxWaterMarsh;
-                    }
-					else if (t.IsBridge())
-                    {
-						var ut = map.terrainGrid.UnderTerrainAt(i);
-						if (ut.IsWater)
+						var underTerrain = map.terrainGrid.UnderTerrainAt(i);
+						if (underTerrain.IsFreezableWater())
 						{
-							NaturalWaterTerrainGrid[i] = ut; 
-							if (ut == TerrainDefOf.WaterDeep || ut == TerrainDefOf.WaterMovingChestDeep)
-								WaterDepthGrid[i] = MaxWaterDeep;
-							else if (ut == TerrainDefOf.WaterShallow || ut == TerrainDefOf.WaterMovingShallow)
-								WaterDepthGrid[i] = MaxWaterShallow;
-							else if (ut == WaterDefs.Marsh)
-								WaterDepthGrid[i] = MaxWaterMarsh;
+							NaturalWaterTerrainGrid[i] = underTerrain; 
+							WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(underTerrain).MaxWaterDepth;
 						}
                     }
 				}
@@ -117,28 +94,15 @@ namespace WF
 				Initialize(); //Initialize it!
 			if (Find.TickManager.TicksGame % WaterFreezesSettings.IceRate != 0) //If it's not once per hour..
 				return; //Don't execute the rest, throttling measure.
-			for (int i = 0; i < NaturalWaterTerrainGrid.Length; i++) //Thread this later probably.
+			for (int i = 0; i < AllWaterTerrainGrid.Length; i++) //Thread this later probably.
 			{
 				var cell = map.cellIndices.IndexToCell(i);
-				var currentTerrain = cell.GetTerrain(map); //Get current terrain.
-				//If it's lake ice or it's water, or it's a natural water spot..
-				if (currentTerrain == IceDefs.WF_LakeIceThin ||
-					currentTerrain == IceDefs.WF_LakeIce ||
-					currentTerrain == IceDefs.WF_LakeIceThick ||
-					currentTerrain == IceDefs.WF_MarshIceThin ||
-					currentTerrain == IceDefs.WF_MarshIce ||
-					currentTerrain == IceDefs.WF_RiverIceThin ||
-					currentTerrain == IceDefs.WF_RiverIce ||
-					currentTerrain == IceDefs.WF_RiverIceThick ||
-					currentTerrain == TerrainDefOf.WaterShallow ||
-					currentTerrain == TerrainDefOf.WaterDeep ||
-					currentTerrain == TerrainDefOf.WaterMovingShallow ||
-					currentTerrain == TerrainDefOf.WaterMovingChestDeep ||
-					currentTerrain == WaterDefs.Marsh ||
-					AllWaterTerrainGrid[i] != null)
+				var water = AllWaterTerrainGrid[i];
+				if (water != null) //If it's water we track..
 				{
-					UpdateIceForTemperature(cell);
-					UpdateIceStage(cell, currentTerrain);
+					var extension = WaterFreezesStatCache.GetExtension(water);
+					UpdateIceForTemperature(cell, extension);
+					UpdateIceStage(cell, extension);
 				}
 			}
 		}
@@ -189,114 +153,104 @@ namespace WF
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetMaxWaterByDef(int i, TerrainDef water = null, bool updateIceStage = true)
+		public TerrainExtension_WaterStats SetMaxWaterByDef(int i, TerrainDef water = null, bool updateIceStage = true)
 		{
 			if (water == null) //Was not passed in..
 				water = AllWaterTerrainGrid[i]; //Get it.
-			float maxForTerrain = 0;
-			if (water.IsShallowDepth())
-				maxForTerrain = MaxWaterShallow;
-			else if (water.IsDeepDepth())
-				maxForTerrain = MaxWaterDeep;
-			else if (water == WaterDefs.Marsh)
-				maxForTerrain = MaxWaterMarsh;
-			WaterDepthGrid[i] = maxForTerrain;
+			var extension = WaterFreezesStatCache.GetExtension(water);
+			WaterDepthGrid[i] = extension.MaxWaterDepth;
 			if (updateIceStage)
 				UpdateIceStage(map.cellIndices.IndexToCell(i));
+			return extension;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UpdateIceForTemperature(IntVec3 cell)
+		public void UpdateIceForTemperature(IntVec3 cell, TerrainExtension_WaterStats extension = null)
 		{
 			var temperature = GenTemperature.GetTemperatureForCell(cell, map);
 			int i = map.cellIndices.CellToIndex(cell);
 			var water = AllWaterTerrainGrid[i];
-			if (water.IsRiverWater() || water.IsRiverIce()) //If it's part of a river..
-				temperature += 10; //Offset by 10 degrees because the moving water introduces kinetic energy.
+			if (extension == null) //If it wasn't passed in..
+				extension = WaterFreezesStatCache.GetExtension(water); //Get it.
+			temperature += extension.FreezingPointOffset; //Offset freezing point by the configured amount (used for things like making rivers and oceans less easily frozen).
 			if (temperature == 0) //If it's 0degC..
 				return; //We don't update when ambiguous.
+			var currentIce = IceDepthGrid[i];
+			var currentWater = WaterDepthGrid[i];
 			if (temperature < 0) //Temperature is below zero..
 			{
-				var currentWater = WaterDepthGrid[i];
-				if (currentWater > 0)
+				if (currentWater > 0 && currentIce < extension.MaxIceDepth)
 				{
-					if (PseudoWaterElevationGrid[i] == 0) //if this isn't one of the edge cells..
+					var elevation = PseudoWaterElevationGrid[i];
+                    #region Only Allow Cells With Adjacent Land Or Ice To Freeze
+                    if (elevation == 0) //if this isn't one of the edge cells..
 					{
 						//If none of the adjacent cells have ice..
-						if (!GenAdjFast.AdjacentCells8Way(cell).Any(adjacentCell =>
-						{
+						var adjacentCells = GenAdjFast.AdjacentCells8Way(cell);
+						bool foundIce = false;
+						for (int j = 0; j < adjacentCells.Count; ++j)
+                        {
+							var adjacentCell = adjacentCells[j];
 							int adjacentCellIndex = map.cellIndices.CellToIndex(adjacentCell);
 							if (adjacentCellIndex < 0 || adjacentCellIndex >= map.terrainGrid.topGrid.Length) //If it's a negative index or it's a larger index than the map's grid length (faster to get topGrid.Length than use property on the cellIndices).
-								return false;
+								continue;
 							var adjacentCellTerrain = map.terrainGrid.TerrainAt(adjacentCellIndex);
-							return adjacentCellTerrain.IsThawableIce();
-						}))
+							if (adjacentCellTerrain.IsThawableIce())
+                            {
+								foundIce = true;
+								break;
+                            }
+						}
+						if (!foundIce)
 							return; //We aren't going to freeze before there's ice adjacent to us.
 					}
-					var change = -temperature //Based on negated temperature..
-						* (WaterFreezesSettings.FreezingFactor + PseudoWaterElevationGrid[i]) //But sped up by a multiplier which takes into account surrounding terrain.
+                    #endregion
+                    var change = -temperature //Based on negated temperature..
+						* (WaterFreezesSettings.FreezingFactor + elevation) //But sped up by a multiplier which takes into account surrounding terrain.
 						/ 2500f * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
-																//WaterFreezes.Log("Freezing cell " + cell.ToString() + " for " + change + " amount, prior, ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
-					var currentIce = IceDepthGrid[i] += change; //Ice goes up..
-					if (water.IsShallowDepth())
-						if (currentIce > MaxIceShallow)
-							IceDepthGrid[i] = MaxIceShallow;
-					else if (water.IsDeepDepth()) 
-						if (currentIce > MaxIceDeep)
-							IceDepthGrid[i] = MaxIceDeep;
-					else if (water.IsMarsh())
-						if (currentIce > MaxIceMarsh)
-							IceDepthGrid[i] = MaxIceMarsh;
 					if ((WaterDepthGrid[i] -= change) < 0) //Water depth goes down.. if that value is less than zero now, then..
-						WaterDepthGrid[i] = 0;
-					//WaterFreezes.Log("For cell " + cell.ToString() + " after changes (and clamping), ice was " + IceDepthGrid[i] + " and water was " + WaterDepthGrid[i]);
+						WaterDepthGrid[i] = 0; //Set it back to zero.
+					//Ice depth goes up (by change or the remaining water if smaller).. if that value is greater than supported, then..
+					if ((IceDepthGrid[i] += (change < currentWater ? change : currentWater)) > extension.MaxIceDepth) 
+						IceDepthGrid[i] = extension.MaxIceDepth;
 				}
 			}
 			else if (temperature > 0) //Temperature is above zero..
 			{
-				var currentIce = IceDepthGrid[i];
-				if (currentIce > 0)
+				if (currentIce > 0)// && currentWater < extension.MaxWaterDepth) This is the parallel check to the above one, but this shouldn't matter and we should probably let ice keep melting either way.
 				{
 					var change = temperature //Based on temperature..
-						/ (WaterFreezesSettings.ThawingFactor + PseudoWaterElevationGrid[i]) / //But slowed down by a divisor which takes into account surrounding terrain.
+						/ (WaterFreezesSettings.ThawingFactor - PseudoWaterElevationGrid[i]) / //But slowed down by a divisor which takes into account surrounding terrain.
 						(currentIce / 100f) //Slow thawing further by ice thickness per 100 ice.
 						/ 2500f * WaterFreezesSettings.IceRate; //Adjust to iceRate based on the 2500 we tuned it to originally.
-					currentIce = IceDepthGrid[i] -= change; //Ice goes down..
-					if (currentIce < 0)
-						IceDepthGrid[i] = 0;
-					else //Only mess with water grid if ice grid had ice to melt.
-					{
-						var currentWater = WaterDepthGrid[i] += change; //Water depth goes up..
-						if (currentWater > MaxWaterShallow && water.IsShallowDepth()) //If shallow underneath and too much water,
-							WaterDepthGrid[i] = MaxWaterShallow; //Cap it.
-						else if (currentWater > MaxWaterDeep && water.IsDeepDepth()) //If deep underneath and too much water,
-							WaterDepthGrid[i] = MaxWaterDeep; //Cap it.
-						else if (currentWater > MaxWaterMarsh && water.IsMarsh()) //If marsh underneath and too much water,
-							WaterDepthGrid[i] = MaxWaterMarsh; //Cap it.
-					}
+					if ((IceDepthGrid[i] -= change) < 0) //Ice goes down.. if that value is less than zero now, then..
+						IceDepthGrid[i] = 0; //Set it back to zero.
+					//Water depth goes up (by change or the remaining ice if smaller).. if that value is greater than supported, then..
+					if ((WaterDepthGrid[i] += (change < currentIce ? change : currentIce)) > extension.MaxWaterDepth) 
+						WaterDepthGrid[i] = extension.MaxWaterDepth; //Cap it.
 				}
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UpdateIceStage(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		public void UpdateIceStage(IntVec3 cell, TerrainExtension_WaterStats extension = null, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);
 			float iceDepth = IceDepthGrid[i];
 			float waterDepth = WaterDepthGrid[i];
 			var water = AllWaterTerrainGrid[i];
 			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = map.terrainGrid.TerrainAt(i);// map.terrainGrid.topGrid[i]; //Get it.
-			if (underTerrain == null)
-				underTerrain = map.terrainGrid.UnderTerrainAt(i);
-			var appropriateTerrain = GetAppropriateTerrainFor(cell, water, waterDepth, iceDepth);
+				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
+			var appropriateTerrain = GetAppropriateTerrainFor(water, waterDepth, iceDepth, extension);
 			if (currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge..
 			{
 				//We deal with underTerrain.
+				if (underTerrain == null) //If it wasn't passed in..
+					underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 				if (underTerrain != appropriateTerrain)
 					map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
 				else
-					CheckAndRefillCell(cell, currentTerrain, underTerrain);
+					CheckAndRefillCell(cell, extension);
 			}
 			else //Not a bridge..
 			{ 
@@ -304,88 +258,44 @@ namespace WF
 				if (currentTerrain != appropriateTerrain)
 					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
 				else
-					CheckAndRefillCell(cell, currentTerrain, underTerrain);
+					CheckAndRefillCell(cell, extension);
 			}
 			BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public TerrainDef GetAppropriateTerrainFor(IntVec3 cell, TerrainDef waterTerrain, float waterDepth, float iceDepth)
+		public TerrainDef GetAppropriateTerrainFor(TerrainDef waterTerrain, float waterDepth, float iceDepth, TerrainExtension_WaterStats extension = null)
 		{
-			var isLake = waterTerrain.IsLakeWater();
-			var isMarsh = waterTerrain == WaterDefs.Marsh;
-			var isRiver = waterTerrain.IsRiverWater();
 			var percentIce = iceDepth / (iceDepth + waterDepth);
 			if (float.IsNaN(percentIce) || percentIce < ThresholdThinIce) //If there's no meaningful amount of ice.. (the IsNaN is for the case where 0/0)
 				return waterTerrain;
 			else if (iceDepth < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold..
-			{
-				if (isLake)
-					return IceDefs.WF_LakeIceThin;
-				else if (isMarsh)
-					return IceDefs.WF_MarshIceThin;
-				else if (isRiver)
-					return IceDefs.WF_RiverIceThin;
-			}
+				return extension.ThinIceDef;
 			else if (iceDepth < ThresholdThickIce) //If it's between regular ice and thick ice in depth..
-			{
-				if (isLake)
-					return IceDefs.WF_LakeIce;
-				else if (isMarsh)
-					return IceDefs.WF_MarshIce;
-				else if (isRiver)
-					return IceDefs.WF_RiverIce;
-			}
+				return extension.IceDef;
 			else //Only thick left..
-			{
-				//Note, there is no thick marsh ice.
-				if (isLake)
-					return IceDefs.WF_LakeIceThick;
-				else if (isRiver)
-					return IceDefs.WF_RiverIceThick;
-			}
-			WaterFreezes.Log("Reached the end of GetAppropriateTerrainFor without finding anything, this should not happen!");
-			return waterTerrain;
+				return extension.ThickIceDef;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void CheckAndRefillCell(IntVec3 cell, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
+		public void CheckAndRefillCell(IntVec3 cell, TerrainExtension_WaterStats extension = null)
 		{
 			if (cell.GetTemperature(map) <= 0) //If it's at or below freezing..
 				return; //Do not thaw!
 			int i = map.cellIndices.CellToIndex(cell);
-			if (currentTerrain == null) //If it wasn't passed in..
-				currentTerrain = cell.GetTerrain(map); //Get it.
-			if (underTerrain == null) //If it wasn't passed in..
-				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			var naturalWater = NaturalWaterTerrainGrid[i];
 			if (naturalWater != null) //If it's natural water..
 			{
 				var season = GenLocalDate.Season(map);
 				if (season == Season.Spring || season == Season.Summer || season == Season.PermanentSummer) //If it's the right season..
 				{
+					if (extension == null)
+						extension = WaterFreezesStatCache.GetExtension(naturalWater);
 					//Refill the cell..
-					if (naturalWater == TerrainDefOf.WaterDeep || naturalWater == TerrainDefOf.WaterMovingChestDeep) //It's deep water when present..
-					{
-						if (WaterDepthGrid[i] < MaxWaterDeep) //If it's not over-full..
-							WaterDepthGrid[i] += 1f / 2500f * WaterFreezesSettings.IceRate; //Fill
-						if (WaterDepthGrid[i] > MaxWaterDeep) //If it's too full..
-							WaterDepthGrid[i] = MaxWaterDeep; //Cap it.
-					}
-					else if (naturalWater == TerrainDefOf.WaterShallow || naturalWater == TerrainDefOf.WaterMovingShallow) //It's shallow water when present..
-					{
-						if (WaterDepthGrid[i] < MaxWaterShallow) //If it's not over-full..
-							WaterDepthGrid[i] += 1f / 2500f * WaterFreezesSettings.IceRate; //Fill
-						if (WaterDepthGrid[i] > MaxWaterShallow) //If it's too full..
-							WaterDepthGrid[i] = MaxWaterShallow; //Cap it.
-					}
-					else if (naturalWater == WaterDefs.Marsh) //It's marsh when present..
-					{
-						if (WaterDepthGrid[i] < MaxWaterMarsh) //If it's not over-full..
-							WaterDepthGrid[i] += 1f / 2500f * WaterFreezesSettings.IceRate; //Fill
-						if (WaterDepthGrid[i] > MaxWaterMarsh) //If it's too full..
-							WaterDepthGrid[i] = MaxWaterMarsh; //Cap it.
-                    }
+					if (WaterDepthGrid[i] < extension.MaxWaterDepth) //If it's not over-full..
+						WaterDepthGrid[i] += 1f / 2500f * WaterFreezesSettings.IceRate; //Fill
+					if (WaterDepthGrid[i] > extension.MaxWaterDepth) //If it's too full..
+						WaterDepthGrid[i] = extension.MaxWaterDepth; //Cap it.
 				}
 			}
 		}
