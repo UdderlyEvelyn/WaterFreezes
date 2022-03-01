@@ -17,13 +17,13 @@ namespace WF
         {
             __state = ___map.terrainGrid.TerrainAt(c);
             //if (__state != newTerr)
-            //    WaterFreezes.Log("SetTerrain Prefix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + newTerr.defName + "\"..");
+            //    WaterFreezes.Log("SetTerrain Prefix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + (newTerr?.defName ?? "null") + "\"..");
         }
 
         internal static void Postfix(IntVec3 c, TerrainDef newTerr, Map ___map, ref TerrainDef __state)
         {
             //if (__state != newTerr)
-            //    WaterFreezes.Log("SetTerrain Postfix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + newTerr.defName + "\"..");
+            //    WaterFreezes.Log("SetTerrain Postfix: Old terrain was \"" + (__state?.defName ?? "null") + "\", new terrain will be \"" + (newTerr?.defName ?? "null") + "\"..");
             int i = ___map.cellIndices.CellToIndex(c);
             var oldTerrain = __state;
             if (oldTerrain == newTerr || oldTerrain == null) //If we're not actually changing anything or it had no terrain previously..
@@ -38,7 +38,7 @@ namespace WF
                     var naturalWater = comp.NaturalWaterTerrainGrid[i] != null;
                     if (!naturalWater && !newTerr.IsThawableIce()) //It's not natural water, freezable water, or thawable ice.
                     {
-                        WaterFreezes.Log("SetTerrain Postfix: Considered water going to non-water, nulling AllTerrain and zeroing water depth, then updating pseudo water elevation grid.");
+                        //WaterFreezes.Log("SetTerrain Postfix: Considered water going to non-water, nulling AllTerrain and zeroing water depth, then updating pseudo water elevation grid.");
                         comp.AllWaterTerrainGrid[i] = null; //Stop tracking it.
                         comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored (in case a mod besides us is doing this).
                     }
@@ -55,7 +55,7 @@ namespace WF
                     var naturalWater = comp.NaturalWaterTerrainGrid[i] != null;
                     if (!naturalWater && !newTerr.IsThawableIce()) //It's not natural water..
                     {
-                        WaterFreezes.Log("SetTerrain Postfix: Non-water going to unnatural water, setting AllTerrain and maxing water depth, then updating pseudo water elevation grid.");
+                        //WaterFreezes.Log("SetTerrain Postfix: Non-water going to unnatural water, setting AllTerrain and maxing water depth, then updating pseudo water elevation grid.");
                         comp.AllWaterTerrainGrid[i] = newTerr; //Track it.
                         comp.SetMaxWaterByDef(i, newTerr, updateIceStage: false);
                     }

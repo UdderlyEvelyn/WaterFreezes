@@ -11,10 +11,14 @@ namespace WF
 {
     public static class TerrainDefExtensions
     {
+        private static Dictionary<TerrainDef, bool> bridgeCache = new Dictionary<TerrainDef, bool>();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsBridge(this TerrainDef def)
         {
-            return def.bridge || def.label.ToLowerInvariant().Contains("bridge") || def.defName.ToLowerInvariant().Contains("bridge");
+            if (!bridgeCache.ContainsKey(def))
+                bridgeCache[def] =  def.bridge || def.label.ToLowerInvariant().Contains("bridge") || def.defName.ToLowerInvariant().Contains("bridge");
+            return bridgeCache[def];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

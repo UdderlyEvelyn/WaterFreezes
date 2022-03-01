@@ -21,7 +21,11 @@ namespace WF
         /// <summary>
         /// An offset from 0C for the freezing point of this type of water (used only on water defs).
         /// </summary>
-        public float FreezingPointOffset;
+        public float FreezingPoint;
+        /// <summary>
+        /// Whether this water is considered moving - this affects whether ice lasts longer near land (if true) or away from land (if false).
+        /// </summary>
+        public bool IsMoving;
         /// <summary>
         /// The def used for thin ice (mandatory if you want it to change terrain to ice at all, used only on water defs).
         /// </summary>

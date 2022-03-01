@@ -42,7 +42,7 @@ namespace WF
 	//								Log.Message("(It has no affordances.)");
 	//						}
 	//						List<Thing> thingList = item.GetThingList(map);
-	//						for (int i = 0; i < thingList.Count; i++)
+	//						for (int i = 0; i < thingList.Count; ++i)
 	//							if (thingList[i] != thingToIgnore &&  //The thing isn't the magical thing to ignore..
 	//								thingList[i].def.entityDefToBuild is TerrainDef terrainDef && //And it's a terraindef..
 	//								!terrainDef.affordances.Contains(terrainAffordanceNeed)) //And that terraindef can support the need of.. itself..

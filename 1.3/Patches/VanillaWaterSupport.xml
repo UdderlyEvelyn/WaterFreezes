@@ -31,7 +31,8 @@
 			<li Class="WF.TerrainExtension_WaterStats">
 				<MaxWaterDepth>100</MaxWaterDepth>
 				<MaxIceDepth>100</MaxIceDepth>
-				<FreezingPointOffset>-10</FreezingPointOffset>
+				<FreezingPoint>-10</FreezingPoint>
+				<IsMoving>true</IsMoving>
 				<ThinIceDef>WF_RiverIceThin</ThinIceDef>
 				<IceDef>WF_RiverIce</IceDef>
 			</li>
@@ -44,7 +45,8 @@
 			<li Class="WF.TerrainExtension_WaterStats">
 				<MaxWaterDepth>400</MaxWaterDepth>
 				<MaxIceDepth>120</MaxIceDepth>
-				<FreezingPointOffset>-10</FreezingPointOffset>
+				<FreezingPoint>-10</FreezingPoint>
+				<IsMoving>true</IsMoving>
 				<ThinIceDef>WF_RiverIceThin</ThinIceDef>
 				<IceDef>WF_RiverIce</IceDef>
 				<ThickIceDef>WF_RiverIceThick</ThickIceDef>

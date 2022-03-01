@@ -19,7 +19,7 @@ namespace WF
         {
 			var comp = WaterFreezesCompCache.GetFor(map);
 			//Clear out any existing ice instantly so we aren't left with stuff a reinit can't comprehend.
-			for (int i = 0; i < comp.AllWaterTerrainGrid.Length; i++)
+			for (int i = 0; i < comp.AllWaterTerrainGrid.Length; ++i)
 			{
 				var allWaterTerrain = comp.AllWaterTerrainGrid[i];
 				if (allWaterTerrain != null && map.terrainGrid.TerrainAt(i) != allWaterTerrain)

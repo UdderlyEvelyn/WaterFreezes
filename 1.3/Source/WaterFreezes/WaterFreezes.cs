@@ -16,46 +16,51 @@ namespace WF
     {
         public static List<IToggleablePatch> Patches = new List<IToggleablePatch>();
 
+        [ToggleablePatch]
         public static ToggleablePatch<ThingDef> WatermillIsFlickablePatch = new ToggleablePatch<ThingDef>
         {
             Name = "Watermill Is Flickable",
             Enabled = true,
             TargetDefName = "WatermillGenerator",
-            Patch = def =>
+            Patch = (patch, def) =>
             {
                 def.comps.Add(new CompProperties_Flickable());
             },
-            Unpatch = def =>
+            Unpatch = (patch, def) =>
             {
                 def.comps.RemoveAll(comp => comp is CompProperties_Flickable);          
             },
         }; 
+
+        [ToggleablePatch]
         public static ToggleablePatch<ThingDef> VPEAdvancedWatermillIsFlickablePatch = new ToggleablePatch<ThingDef>
         {
             Name = "VPE Advanced Watermill Is Flickable",
             Enabled = true,
             TargetModID = "VanillaExpanded.VFEPower",
             TargetDefName = "VFE_AdvancedWatermillGenerator",
-            Patch = def =>
+            Patch = (patch, def) =>
             {
                 def.comps.Add(new CompProperties_Flickable());
             },
-            Unpatch = def =>
+            Unpatch = (patch, def) =>
             {
                 def.comps.RemoveAll(c => c is CompProperties_Flickable);
             },
         };
+
+        [ToggleablePatch]
         public static ToggleablePatch<ThingDef> VPETidalGeneratorIsFlickablePatch = new ToggleablePatch<ThingDef>
         {
             Name = "VPE Tidal Generator Is Flickable",
             Enabled = true,
             TargetModID = "VanillaExpanded.VFEPower",
             TargetDefName = "VFE_TidalGenerator",
-            Patch = def =>
+            Patch = (patch, def) =>
             {
                 def.comps.Add(new CompProperties_Flickable());
             },
-            Unpatch = def =>
+            Unpatch = (patch, def) =>
             {
                 def.comps.RemoveAll(c => c is CompProperties_Flickable);
             },
@@ -63,25 +68,11 @@ namespace WF
 
         static WaterFreezes()
         {
+            Log("Initializing..");
+            ToggleablePatch.ProcessPatches("UdderlyEvelyn.WaterFreezes");
             var harmony = new Harmony("UdderlyEvelyn.WaterFreezes");
             harmony.PatchAll(); 
-            Log("Initializing..");
-            Patches.Add(WatermillIsFlickablePatch);
-            Patches.Add(VPEAdvancedWatermillIsFlickablePatch);
-            Patches.Add(VPETidalGeneratorIsFlickablePatch);
-            ProcessPatches();
             WaterFreezesStatCache.Initialize();
-        }
-
-        /// <summary>
-        /// Process the patches stored in SoilRelocation.Patches.
-        /// </summary>
-        /// <param name="reason">the reason to process them, optional, shown in logging</param>
-        public static void ProcessPatches(string reason = null)
-        {
-            Log("Processing patches" + (reason != null ? " (" + reason + ")" : "") + "..");
-            foreach (var patch in Patches)
-                patch.Process();
         }
 
         private static Version version = Assembly.GetAssembly(typeof(WaterFreezes)).GetName().Version;
