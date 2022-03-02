@@ -255,16 +255,15 @@ namespace WF
 			var appropriateTerrain = GetAppropriateTerrainFor(water, waterDepth, iceDepth, extension);
 			if (appropriateTerrain != null)
 			{
-				if ((underTerrain.IsFreezableWater() ||
-					underTerrain.IsThawableIce() ||
+				if (underTerrain.IsThawableIce() ||
 					currentTerrain.IsBridge() ||
-					(
-						TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null) //If it's a bridge (with TSO)..
-					) && 
-					underTerrain != appropriateTerrain) 
-					map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
+					(TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge (with TSO)..
+				{
+					if (underTerrain != appropriateTerrain)
+						map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
+				}
 				else if (currentTerrain != appropriateTerrain)
-						map.terrainGrid.SetTerrain(cell, appropriateTerrain);
+					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
 			}
 			CheckAndRefillCell(cell, extension);
 			BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
