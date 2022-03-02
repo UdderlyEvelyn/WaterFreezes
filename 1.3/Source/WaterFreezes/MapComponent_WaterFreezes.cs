@@ -250,25 +250,23 @@ namespace WF
 			var water = AllWaterTerrainGrid[i];
 			if (currentTerrain == null) //If it wasn't passed in..
 				currentTerrain = map.terrainGrid.TerrainAt(i); //Get it.
+			if (underTerrain == null) //If it wasn't passed in..
+				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			var appropriateTerrain = GetAppropriateTerrainFor(water, waterDepth, iceDepth, extension);
-			if (currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge..
+			if (appropriateTerrain != null)
 			{
-				//We deal with underTerrain.
-				if (underTerrain == null) //If it wasn't passed in..
-					underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-				if (appropriateTerrain != null && underTerrain != appropriateTerrain)
+				if ((underTerrain.IsFreezableWater() ||
+					underTerrain.IsThawableIce() ||
+					currentTerrain.IsBridge() ||
+					(
+						TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null) //If it's a bridge (with TSO)..
+					) && 
+					underTerrain != appropriateTerrain) 
 					map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
-				else
-					CheckAndRefillCell(cell, extension);
+				else if (currentTerrain != appropriateTerrain)
+						map.terrainGrid.SetTerrain(cell, appropriateTerrain);
 			}
-			else //Not a bridge..
-			{ 
-				//We deal with regular terrain.
-				if (appropriateTerrain != null && currentTerrain != appropriateTerrain)
-					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
-				else
-					CheckAndRefillCell(cell, extension);
-			}
+			CheckAndRefillCell(cell, extension);
 			BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 		}
 
