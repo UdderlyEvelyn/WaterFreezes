@@ -256,7 +256,7 @@ namespace WF
 				//We deal with underTerrain.
 				if (underTerrain == null) //If it wasn't passed in..
 					underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
-				if (underTerrain != appropriateTerrain)
+				if (appropriateTerrain != null && underTerrain != appropriateTerrain)
 					map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
 				else
 					CheckAndRefillCell(cell, extension);
@@ -264,7 +264,7 @@ namespace WF
 			else //Not a bridge..
 			{ 
 				//We deal with regular terrain.
-				if (currentTerrain != appropriateTerrain)
+				if (appropriateTerrain != null && currentTerrain != appropriateTerrain)
 					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
 				else
 					CheckAndRefillCell(cell, extension);
@@ -277,7 +277,11 @@ namespace WF
 		{
 			var percentIce = iceDepth / (iceDepth + waterDepth);
 			if (iceDepth == 0 || percentIce < ThresholdThinIce) //If there's no meaningful amount of ice.. (the IsNaN is for the case where 0/0)
-				return waterTerrain;
+			{
+				if (waterDepth > 0)
+					return waterTerrain;
+				else return null;
+			}
 			else if (iceDepth < ThresholdIce) //If there's ice, but it's below the regular ice depth threshold.. There's no def is not null check since thin ice def is mandatory.
 				return extension.ThinIceDef;
 			else if (extension.IceDef != null && iceDepth < ThresholdThickIce) //If it's between regular ice and thick ice in depth..
@@ -285,11 +289,11 @@ namespace WF
 			else if (extension.ThickIceDef != null) //Only thick left..
 				return extension.ThickIceDef;
 			else
-            {
+			{
 				var error = "GetAppropriateTerrainFor failed to find appropriate terrain for \"" + waterTerrain.defName + "\" with depth " + waterDepth + " and ice depth " + iceDepth + ".";
 				WaterFreezes.Log(error, ErrorLevel.Error);
 				throw new InvalidOperationException(error);
-            }
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

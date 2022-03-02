@@ -11,6 +11,16 @@ namespace WF
     public static class API
     {
 		/// <summary>
+		/// Returns whether something is thawable ice, which is ice terrain registered with Water Freezes (called from outside as part of the API).
+		/// </summary>
+		/// <param name="def"></param>
+		/// <returns></returns>
+		public static bool IsThawableIce(TerrainDef def)
+        {
+			return def.IsThawableIce();
+        }
+
+		/// <summary>
 		/// Removes ice from a cell, updates its ice stage, and reports the amount of ice removed (called from outside as part of the API).
 		/// </summary>
 		/// <param name="cell"></param>
