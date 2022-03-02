@@ -50,7 +50,7 @@ namespace WF
                 var comp = WaterFreezesCompCache.GetFor(___map);
                 if (comp == null || !comp.Initialized) //If comp is null or uninitialized..
                     return; //Don't try.
-                if (newTerr.IsFreezableWater()) //But it's becoming water now..
+                if (!oldTerrain.IsThawableIce() && newTerr.IsFreezableWater()) //But it's becoming water now..
                 {
                     var naturalWater = comp.NaturalWaterTerrainGrid[i] != null;
                     if (!naturalWater && !newTerr.IsThawableIce()) //It's not natural water..
