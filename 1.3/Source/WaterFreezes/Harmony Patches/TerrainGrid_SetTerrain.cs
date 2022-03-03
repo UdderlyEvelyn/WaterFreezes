@@ -68,6 +68,7 @@ namespace WF
                         comp.AllWaterTerrainGrid[i] = null; //Stop tracking it.
                         comp.WaterDepthGrid[i] = 0; //Make sure there's no water here now or else it'll be restored (in case a mod besides us is doing this).
                     }
+                    ___map.snowGrid.SetDepth(c, 0f);
                     comp.UpdatePseudoWaterElevationGridAtAndAroundCell(c);
                 }
             }
