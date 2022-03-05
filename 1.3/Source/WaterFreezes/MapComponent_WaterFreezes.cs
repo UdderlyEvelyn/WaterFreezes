@@ -45,7 +45,7 @@ namespace WF
 
         public void Initialize()
 		{
-			WaterFreezes.Log("MapComponent Initializing (for map uniqueId " + map.uniqueID + "\")..");
+			WaterFreezes.Log("MapComponent Initializing (for map " + map.uniqueID + ")..");
 			if (WaterDepthGrid == null) //If we have no water depth grid..
 			{
 				WaterFreezes.Log("Instantiating water depth grid..");
