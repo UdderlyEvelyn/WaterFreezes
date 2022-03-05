@@ -317,8 +317,10 @@ namespace WF
 
 		public List<string> BreakdownOrDestroyExceptedDefNames = new()
 		{
-			"Shuttle",
-			"ShuttleCrashed",
+			"Ludeon.RimWorld.Royalty.Shuttle",
+			"Ludeon.RimWorld.Royalty.ShuttleCrashed",
+			"dubwise.dubsbadhygiene.sewagePipeStuff",
+			"dubwise.dubsbadhygiene.SewageOutlet",
 		};
 
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
@@ -330,6 +332,7 @@ namespace WF
 		{
 			"VPE_NeedsDistance".Translate(), //If it's a tidal generator trying to see if it's too close to itself..
 			"WFFT_NeedsDistance".Translate(), //If it's a fish trap or fish net trying to see if it's too close to itself..
+			"RBB.TrapTooClose".Translate(), //If it's a shellfish trap trying to see if it's too close to itself..
 		};
 
 		public void BreakdownOrDestroyBuildingsInCellIfInvalid(IntVec3 cell)
@@ -345,9 +348,10 @@ namespace WF
 				bool shouldBreakdownOrDestroy = false;
 				if (thing is Building building && thing.def.destroyable)
 				{
+					//WaterFreezes.Log(thing.def.modContentPack.PackageId + "." + thing.def.defName);
 					if ((thing.questTags != null && thing.questTags.Count > 0) || //If it's marked for a quest..
 						(thing.def.defName.StartsWith("Ancient") || thing.def.defName.StartsWith("VFEA_")) || //If it's ancient stuff..
-						BreakdownOrDestroyExceptedDefNames.Contains(thing.def.defName)) //Or if it's in the list of things to skip..
+						BreakdownOrDestroyExceptedDefNames.Contains(thing.def.modContentPack.PackageId + "." + thing.def.defName)) //Or if it's in the list of things to skip..
 						continue; //Skip this one.
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
