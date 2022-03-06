@@ -253,20 +253,25 @@ namespace WF
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			var appropriateTerrain = GetAppropriateTerrainFor(water, waterDepth, iceDepth, extension);
+			bool isBridge = false, isBridgeCached = false;
 			if (appropriateTerrain != null)
 			{
-				if (underTerrain.IsThawableIce() ||
-					currentTerrain.IsBridge() ||
-					(TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null)) //If it's a bridge (with TSO)..
+				isBridge = currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null);
+				isBridgeCached = true;
+				if (underTerrain.IsThawableIce() || isBridge) 
 				{
 					if (underTerrain != appropriateTerrain)
 						map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
 				}
 				else if (currentTerrain != appropriateTerrain)
 					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
-			}
-			CheckAndRefillCell(cell, extension);
-			BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
+            }
+            CheckAndRefillCell(cell, extension);
+			//Maybe refactor this later.
+			if (!isBridgeCached)
+				isBridge = currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null);
+			if (!isBridge)
+				BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -319,8 +324,8 @@ namespace WF
 		{
 			"Ludeon.RimWorld.Royalty.Shuttle",
 			"Ludeon.RimWorld.Royalty.ShuttleCrashed",
-			"dubwise.dubsbadhygiene.sewagePipeStuff",
-			"dubwise.dubsbadhygiene.SewageOutlet",
+			"dubwise.dubsbadhygiene.sewagePipeStuff", //DBH Pipes
+			"Aelanna.ARimReborn.Core.ARR_AetherSpotWater", //A Rim Reborn Water Focus Spot
 		};
 
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
