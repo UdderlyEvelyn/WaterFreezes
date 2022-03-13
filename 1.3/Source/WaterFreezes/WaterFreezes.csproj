@@ -69,7 +69,6 @@
     <Compile Include="Harmony Patches\TerrainGrid_SetUnderTerrain.cs" />
     <Compile Include="TerrainExtension_WaterStats.cs" />
     <Compile Include="TerrainDefExtensions.cs" />
-    <Compile Include="TerrainSystemOverhaul_Interop.cs" />
     <Compile Include="WaterFreezesCompCache.cs" />
     <Compile Include="Harmony Patches\MouseoverReadout_MouseoverReadoutOnGUI.cs" />
     <Compile Include="Harmony Patches\CompTerrainPumpDry_AffectCell.cs" />

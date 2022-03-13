@@ -63,7 +63,7 @@ namespace WF
 						NaturalWaterTerrainGrid[i] = currentTerrain;
 						WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(currentTerrain).MaxWaterDepth;
 					}
-					else if (currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, map.cellIndices.IndexToCell(i)) != null))
+					else if (currentTerrain.IsBridge())
                     {
 						var underTerrain = map.terrainGrid.UnderTerrainAt(i);
 						if (underTerrain.IsFreezableWater())
@@ -253,12 +253,9 @@ namespace WF
 			if (underTerrain == null) //If it wasn't passed in..
 				underTerrain = map.terrainGrid.UnderTerrainAt(i); //Get it.
 			var appropriateTerrain = GetAppropriateTerrainFor(water, waterDepth, iceDepth, extension);
-			bool isBridge = false, isBridgeCached = false;
 			if (appropriateTerrain != null)
 			{
-				isBridge = currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null);
-				isBridgeCached = true;
-				if (underTerrain.IsThawableIce() || isBridge) 
+				if (underTerrain.IsThawableIce() || currentTerrain.IsBridge()) 
 				{
 					if (underTerrain != appropriateTerrain)
 						map.terrainGrid.SetUnderTerrain(cell, appropriateTerrain);
@@ -267,10 +264,7 @@ namespace WF
 					map.terrainGrid.SetTerrain(cell, appropriateTerrain);
             }
             CheckAndRefillCell(cell, extension);
-			//Maybe refactor this later.
-			if (!isBridgeCached)
-				isBridge = currentTerrain.IsBridge() || (TerrainSystemOverhaul_Interop.TerrainSystemOverhaulPresent && TerrainSystemOverhaul_Interop.GetBridge(map.terrainGrid, cell) != null);
-			if (!isBridge)
+			if (!currentTerrain.IsBridge())
 				BreakdownOrDestroyBuildingsInCellIfInvalid(cell);
 		}
 
