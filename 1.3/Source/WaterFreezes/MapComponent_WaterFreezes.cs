@@ -333,7 +333,8 @@ namespace WF
 			"VPE_NeedsDistance".Translate(), //If it's a tidal generator trying to see if it's too close to itself..
 			"WFFT_NeedsDistance".Translate(), //If it's a fish trap or fish net trying to see if it's too close to itself..
 			"RBB.TrapTooClose".Translate(), //If it's a shellfish trap trying to see if it's too close to itself..
-			"RBB.FSTooClose".Translate(), //Fishing spot too close (Rainbeau's Fishing).
+			"RBB.FSTooClose".Translate(), //Fishing spot trying to see if it's too close to itself..
+			"VME_NeedsDistance".Translate(), //Fish traps from Vanilla Ideology Expanded Memes & Structures trying to see if it's too close to itself..
 		};
 
 		public void BreakdownOrDestroyBuildingsInCellIfInvalid(IntVec3 cell)
@@ -347,13 +348,13 @@ namespace WF
 					continue; //Can't work on a null thing!
 				bool dueToAffordances = false;
 				bool shouldBreakdownOrDestroy = false;
-				if (thing is Building building && thing.def.destroyable)
+				if (thing is Building && thing.def.destroyable)
 				{
 					//WaterFreezes.Log("Checking " + thing.def.modContentPack.PackageId + "." + thing.def.defName + " for destruction..");
 					//WaterFreezes.Log(thing.def.modContentPack.PackageId + "." + thing.def.defName);
 					if ((thing.questTags != null && thing.questTags.Count > 0) || //If it's marked for a quest..
 						(thing.def.defName.StartsWith("Ancient") || thing.def.defName.StartsWith("VFEA_")) || //If it's ancient stuff..
-						BreakdownOrDestroyExceptedDefNames.Contains(thing.def.modContentPack.PackageId + "." + thing.def.defName)) //Or if it's in the list of things to skip..
+						(thing.def.modContentPack != null && BreakdownOrDestroyExceptedDefNames.Contains(thing.def.modContentPack.PackageId + "." + thing.def.defName))) //Or if it's in the list of things to skip..
 						continue; //Skip this one.
 					if (thing.def.PlaceWorkers != null)
 						foreach (PlaceWorker pw in thing.def.PlaceWorkers)
