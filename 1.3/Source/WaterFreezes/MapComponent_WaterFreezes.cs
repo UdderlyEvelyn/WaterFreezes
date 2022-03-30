@@ -314,12 +314,13 @@ namespace WF
 			}
 		}
 
+		//Game lowercases all packageIDs pulled at runtime. -UdderlyEvelyn 3/27/22
 		public List<string> BreakdownOrDestroyExceptedDefNames = new()
 		{
-			"Ludeon.RimWorld.Royalty.Shuttle",
-			"Ludeon.RimWorld.Royalty.ShuttleCrashed",
+			"ludeon.rimworld.royalty.Shuttle",
+			"ludeon.rimworld.royalty.ShuttleCrashed",
 			"dubwise.dubsbadhygiene.sewagePipeStuff", //DBH Pipes
-			"Aelanna.ARimReborn.Core.ARR_AetherSpotWater", //A Rim Reborn Water Focus Spot
+			"aelanna.arimreborn.core.ARR_AetherSpotWater", //A Rim Reborn Water Focus Spot
 		};
 
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
@@ -332,6 +333,7 @@ namespace WF
 			"VPE_NeedsDistance".Translate(), //If it's a tidal generator trying to see if it's too close to itself..
 			"WFFT_NeedsDistance".Translate(), //If it's a fish trap or fish net trying to see if it's too close to itself..
 			"RBB.TrapTooClose".Translate(), //If it's a shellfish trap trying to see if it's too close to itself..
+			"RBB.FSTooClose".Translate(), //Fishing spot too close (Rainbeau's Fishing).
 		};
 
 		public void BreakdownOrDestroyBuildingsInCellIfInvalid(IntVec3 cell)
@@ -347,6 +349,7 @@ namespace WF
 				bool shouldBreakdownOrDestroy = false;
 				if (thing is Building building && thing.def.destroyable)
 				{
+					//WaterFreezes.Log("Checking " + thing.def.modContentPack.PackageId + "." + thing.def.defName + " for destruction..");
 					//WaterFreezes.Log(thing.def.modContentPack.PackageId + "." + thing.def.defName);
 					if ((thing.questTags != null && thing.questTags.Count > 0) || //If it's marked for a quest..
 						(thing.def.defName.StartsWith("Ancient") || thing.def.defName.StartsWith("VFEA_")) || //If it's ancient stuff..

@@ -24,6 +24,8 @@ namespace WF
             {
                 var i = map.cellIndices.CellToIndex(c);
                 var comp = WaterFreezesCompCache.GetFor(map);
+                if (WaterFreezesSettings.MoisturePumpClearsNaturalWater)
+                    comp.NaturalWaterTerrainGrid[i] = null;
                 comp.AllWaterTerrainGrid[i] = null;
                 comp.WaterDepthGrid[i] = 0;
             }

@@ -11,6 +11,7 @@ Water freezes and turns to ice with different depths, if you use Soil Relocation
   </description>
   <loadAfter>
     <li>Ludeon.RimWorld</li>
+    <li>rainbeausfishing.reworkmod</li>
   </loadAfter>
 </ModMetaData>
 

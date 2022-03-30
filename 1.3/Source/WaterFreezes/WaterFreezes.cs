@@ -155,6 +155,7 @@ namespace WF
             listingStandard.TextFieldNumericLabeled<float>("Freezing Factor", ref WaterFreezesSettings.FreezingFactor, ref _freezingMultiplierBuffer, 1);
             listingStandard.Label("The (negated) temperature is divided by this value before going into other calculations to produce the amount of thawing that occurs above freezing.");
             listingStandard.TextFieldNumericLabeled<float>("Thawing Factor", ref WaterFreezesSettings.ThawingFactor, ref _thawingDivisorBuffer, 1);
+            listingStandard.CheckboxLabeled("Moisture Pump Clears Natural Water", ref WaterFreezesSettings.MoisturePumpClearsNaturalWater, "If enabled, using a moisture pump will prevent water you pumped from refilling. I recommend using Soil Relocation Framework's water filling instead!");
             listingStandard.End();
             base.DoSettingsWindowContents(inRect);
         }

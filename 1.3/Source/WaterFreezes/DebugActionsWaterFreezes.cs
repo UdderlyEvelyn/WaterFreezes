@@ -84,7 +84,7 @@ namespace WF
 			if (comp.NaturalWaterTerrainGrid[index] != null)
 			{
 				comp.NaturalWaterTerrainGrid[index] = null;
-				comp.UpdateIceStage(cell);
+				//comp.UpdateIceStage(cell); //Why was this here? Leaving it commented out just in case it becomes apparent later. -UdderlyEvelyn 3/27/22
 			}
 			else
 			{
