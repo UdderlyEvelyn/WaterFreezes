@@ -14,7 +14,21 @@ namespace WF
     [StaticConstructorOnStartup]
     public static class WaterFreezes
     {
-        public static List<IToggleablePatch> Patches = new List<IToggleablePatch>();
+        //[ToggleablePatch]
+        //public static ToggleablePatch<ThingDef> RimsentialSpaceportsFuelProcessorIsBreakdownablePatch = new ToggleablePatch<ThingDef>
+        //{
+        //    Name = "Rimsential Spaceports Fuel Processor Is Breakdownable",
+        //    Enabled = true,
+        //    TargetDefName = "Spaceports_FuelProcessor",
+        //    Patch = (patch, def) =>
+        //    {
+        //        def.comps.Add(new CompProperties_Breakdownable());
+        //    },
+        //    Unpatch = (patch, def) =>
+        //    {
+        //        def.comps.RemoveAll(comp => comp is CompProperties_Breakdownable);
+        //    },
+        //};
 
         [ToggleablePatch]
         public static ToggleablePatch<ThingDef> WatermillIsFlickablePatch = new ToggleablePatch<ThingDef>

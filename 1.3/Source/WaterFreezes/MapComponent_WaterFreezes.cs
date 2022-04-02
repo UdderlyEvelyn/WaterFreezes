@@ -321,6 +321,8 @@ namespace WF
 			"ludeon.rimworld.royalty.ShuttleCrashed",
 			"dubwise.dubsbadhygiene.sewagePipeStuff", //DBH Pipes
 			"aelanna.arimreborn.core.ARR_AetherSpotWater", //A Rim Reborn Water Focus Spot
+			"owlchemist.invisiblewalls.Owl_InvisibleWall",
+			"somewhereoutinspace.spaceports.Spaceports_FuelProcessor", //Let's just assume this spacer-tech fuel processor heats itself so it doesn't jam?
 		};
 
 		public List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = new()
