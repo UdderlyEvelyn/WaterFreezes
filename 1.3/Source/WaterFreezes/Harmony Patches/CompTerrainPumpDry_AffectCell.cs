@@ -13,9 +13,16 @@ namespace WF
     [HarmonyPatch(typeof(CompTerrainPumpDry), "AffectCell", new Type[] { typeof(Map), typeof(IntVec3) })]
     public class CompTerrainPumpDry_AffectCell
     {
-        internal static void Postfix(Map map, IntVec3 c)
+        internal static void Prefix(Map map, IntVec3 c, ref TerrainDef __state)
         {
-            TerrainDef terrain = c.GetTerrain(map);
+            //Save cell state before drying
+            __state = map.terrainGrid.TerrainAt(c);
+
+        }
+        internal static void Postfix(Map map, IntVec3 c, ref TerrainDef __state)
+        {
+            TerrainDef terrain = __state;
+            Log.Message(terrain.ToString());
             if (terrain == TerrainDefOf.WaterDeep ||
                 terrain == TerrainDefOf.WaterShallow ||
                 terrain == WaterDefs.Marsh ||
@@ -24,10 +31,13 @@ namespace WF
             {
                 var i = map.cellIndices.CellToIndex(c);
                 var comp = WaterFreezesCompCache.GetFor(map);
+                //Don't mess with water at all unless
                 if (WaterFreezesSettings.MoisturePumpClearsNaturalWater)
+                {
                     comp.NaturalWaterTerrainGrid[i] = null;
-                comp.AllWaterTerrainGrid[i] = null;
-                comp.WaterDepthGrid[i] = 0;
+                    comp.AllWaterTerrainGrid[i] = null;
+                    comp.WaterDepthGrid[i] = 0;
+                }
             }
         }
     }
