@@ -54,25 +54,7 @@ namespace WF
 			if (NaturalWaterTerrainGrid == null) //If we haven't got a waterGrid loaded from the save file, make one.
 			{
 				WaterFreezes.Log("Generating natural water grid and populating water depth grid..");
-				NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
-				for (int i = 0; i < map.cellIndices.NumGridCells; ++i)
-				{
-					var currentTerrain = map.terrainGrid.TerrainAt(i);
-					if (currentTerrain.IsFreezableWater())
-					{
-						NaturalWaterTerrainGrid[i] = currentTerrain;
-						WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(currentTerrain).MaxWaterDepth;
-					}
-					else if (currentTerrain.IsBridge())
-                    {
-						var underTerrain = map.terrainGrid.UnderTerrainAt(i);
-						if (underTerrain.IsFreezableWater())
-						{
-							NaturalWaterTerrainGrid[i] = underTerrain; 
-							WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(underTerrain).MaxWaterDepth;
-						}
-                    }
-				}
+                InitializeNaturalWaterGrid();
 			}
 			if (AllWaterTerrainGrid == null) //If we have no all-water terrain grid..
 			{
@@ -91,6 +73,29 @@ namespace WF
 			}
 			Initialized = true;
 		}
+		
+        public void InitializeNaturalWaterGrid()
+        {
+            NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
+            for (int i = 0; i < map.cellIndices.NumGridCells; ++i)
+            {
+                var currentTerrain = map.terrainGrid.TerrainAt(i);
+                if (currentTerrain.IsFreezableWater())
+                {
+                    NaturalWaterTerrainGrid[i] = currentTerrain;
+                    WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(currentTerrain).MaxWaterDepth;
+                }
+                else if (currentTerrain.IsBridge())
+                {
+                    var underTerrain = map.terrainGrid.UnderTerrainAt(i);
+                    if (underTerrain.IsFreezableWater())
+                    {
+                        NaturalWaterTerrainGrid[i] = underTerrain;
+                        WaterDepthGrid[i] = WaterFreezesStatCache.GetExtension(underTerrain).MaxWaterDepth;
+                    }
+                }
+            }
+        }
 
 		public override void MapComponentTick()
 		{
@@ -240,8 +245,7 @@ namespace WF
 				}
 			}
 		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		
 		public void UpdateIceStage(IntVec3 cell, TerrainExtension_WaterStats extension = null, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);

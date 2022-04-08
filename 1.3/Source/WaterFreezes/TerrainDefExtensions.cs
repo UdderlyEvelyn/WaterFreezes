@@ -24,13 +24,13 @@ namespace WF
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsFreezableWater(this TerrainDef def)
         {
-            return WaterFreezesStatCache.FreezableWater.Contains(def);
+            return WaterFreezesStatCache.FreezableWater.Contains(def.defName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsThawableIce(this TerrainDef def)
         {
-            return WaterFreezesStatCache.ThawableIce.Contains(def);
+            return WaterFreezesStatCache.ThawableIce.Contains(def.defName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
