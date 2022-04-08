@@ -54,7 +54,7 @@ namespace WF
 			if (NaturalWaterTerrainGrid == null) //If we haven't got a waterGrid loaded from the save file, make one.
 			{
 				WaterFreezes.Log("Generating natural water grid and populating water depth grid..");
-				InitNaturalWaterGrid();
+                InitializeNaturalWaterGrid();
 			}
 			if (AllWaterTerrainGrid == null) //If we have no all-water terrain grid..
 			{
@@ -73,9 +73,8 @@ namespace WF
 			}
 			Initialized = true;
 		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void InitNaturalWaterGrid()
+		
+        public void InitializeNaturalWaterGrid()
         {
             NaturalWaterTerrainGrid = new TerrainDef[map.cellIndices.NumGridCells];
             for (int i = 0; i < map.cellIndices.NumGridCells; ++i)
@@ -246,8 +245,7 @@ namespace WF
 				}
 			}
 		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		
 		public void UpdateIceStage(IntVec3 cell, TerrainExtension_WaterStats extension = null, TerrainDef currentTerrain = null, TerrainDef underTerrain = null)
         {
 			int i = map.cellIndices.CellToIndex(cell);
