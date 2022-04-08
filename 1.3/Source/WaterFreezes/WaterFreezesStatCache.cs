@@ -13,8 +13,8 @@ namespace WF
     public static class WaterFreezesStatCache
     {
         private static Dictionary<TerrainDef, TerrainExtension_WaterStats> extensionPerDef = new Dictionary<TerrainDef, TerrainExtension_WaterStats>();
-        public static HashSet<TerrainDef> FreezableWater = new HashSet<TerrainDef>();
-        public static HashSet<TerrainDef> ThawableIce = new HashSet<TerrainDef>();
+        public static HashSet<string> FreezableWater = new HashSet<string>();
+        public static HashSet<string> ThawableIce = new HashSet<string>();
 
         public static void Initialize()
         {
@@ -27,13 +27,13 @@ namespace WF
                     extensionPerDef.Add(def, extension);
                     if (extension.ThinIceDef != null)
                     {
-                        FreezableWater.Add(def);
-                        ThawableIce.Add(extension.ThinIceDef);
+                        FreezableWater.Add(def.defName);
+                        ThawableIce.Add(extension.ThinIceDef.defName);
                     }
                     if (extension.IceDef != null)
-                        ThawableIce.Add(extension.IceDef);
+                        ThawableIce.Add(extension.IceDef.defName);
                     if (extension.ThickIceDef != null)
-                        ThawableIce.Add(extension.ThickIceDef);
+                        ThawableIce.Add(extension.ThickIceDef.defName);
                 }
             }
             sw.Stop();
