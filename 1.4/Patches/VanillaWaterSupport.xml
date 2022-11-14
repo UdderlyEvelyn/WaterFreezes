@@ -1,0 +1,69 @@
+<Patch>
+
+	<Operation Class="PatchOperationAddModExtension">
+		<xpath>/Defs/TerrainDef[defName="WaterShallow"]</xpath>
+		<value>
+			<li Class="WF.TerrainExtension_WaterStats">
+				<MaxWaterDepth>100</MaxWaterDepth>
+				<MaxIceDepth>100</MaxIceDepth>
+				<ThinIceDef>WF_LakeIceThin</ThinIceDef>
+				<IceDef>WF_LakeIce</IceDef>
+			</li>
+		</value>
+	</Operation>
+	
+	<Operation Class="PatchOperationAddModExtension">
+		<xpath>/Defs/TerrainDef[defName="WaterDeep"]</xpath>
+		<value>
+			<li Class="WF.TerrainExtension_WaterStats">
+				<MaxWaterDepth>400</MaxWaterDepth>
+				<MaxIceDepth>120</MaxIceDepth>
+				<ThinIceDef>WF_LakeIceThin</ThinIceDef>
+				<IceDef>WF_LakeIce</IceDef>
+				<ThickIceDef>WF_LakeIceThick</ThickIceDef>
+			</li>
+		</value>
+	</Operation>
+	
+	<Operation Class="PatchOperationAddModExtension">
+		<xpath>/Defs/TerrainDef[defName="WaterMovingShallow"]</xpath>
+		<value>
+			<li Class="WF.TerrainExtension_WaterStats">
+				<MaxWaterDepth>100</MaxWaterDepth>
+				<MaxIceDepth>100</MaxIceDepth>
+				<FreezingPoint>-10</FreezingPoint>
+				<IsMoving>true</IsMoving>
+				<ThinIceDef>WF_RiverIceThin</ThinIceDef>
+				<IceDef>WF_RiverIce</IceDef>
+			</li>
+		</value>
+	</Operation>
+	
+	<Operation Class="PatchOperationAddModExtension">
+		<xpath>/Defs/TerrainDef[defName="WaterMovingChestDeep"]</xpath>
+		<value>
+			<li Class="WF.TerrainExtension_WaterStats">
+				<MaxWaterDepth>400</MaxWaterDepth>
+				<MaxIceDepth>120</MaxIceDepth>
+				<FreezingPoint>-10</FreezingPoint>
+				<IsMoving>true</IsMoving>
+				<ThinIceDef>WF_RiverIceThin</ThinIceDef>
+				<IceDef>WF_RiverIce</IceDef>
+				<ThickIceDef>WF_RiverIceThick</ThickIceDef>
+			</li>
+		</value>
+	</Operation>
+	
+	<Operation Class="PatchOperationAddModExtension">
+		<xpath>/Defs/TerrainDef[defName="Marsh"]</xpath>
+		<value>
+			<li Class="WF.TerrainExtension_WaterStats">
+				<MaxWaterDepth>70</MaxWaterDepth>
+				<MaxIceDepth>70</MaxIceDepth>
+				<ThinIceDef>WF_MarshIceThin</ThinIceDef>
+				<IceDef>WF_MarshIce</IceDef>
+			</li>
+		</value>
+	</Operation>
+	
+</Patch>

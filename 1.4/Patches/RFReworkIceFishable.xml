@@ -1,0 +1,13 @@
+<Patch>
+ <Operation Class="PatchOperationFindMod">
+  <mods>
+   <li>[RF] Fishing-ReWork</li>
+  </mods>
+  <match Class="PatchOperationAdd">
+  <xpath>/Defs/TerrainDef[contains(defName,"WF_")]/affordances</xpath>
+   <value>
+    <li>IceFishable</li>
+   </value>
+  </match>
+  </Operation>
+</Patch>
