@@ -1,0 +1,5 @@
+# Changelog for WaterFreezes
+
+1.5.1 - Updated for 1.5
+Used DeepL to update translations for ChineseSimplified, French, German
+
