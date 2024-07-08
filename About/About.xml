@@ -46,7 +46,7 @@ Update of UdderlyEvelyns mod https://steamcommunity.com/sharedfiles/filedetails/
 [/list]
 
 [h1]Interoperates With [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2654088143]Soil Relocation Framework[/url]![/h1]
-[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2654088143][img]https://steamuserimages-a.akamaihd.net/ugc/1852669769234599993/841705BB1CEB6E4FC6F7FB98FEF6C6FE17F92E2B/?imw=600&amp;amp;imh=400&amp;amp;ima=fit&amp;amp;impolicy=Letterbox&amp;amp;imcolor=%23000000&amp;amp;letterbox=false[/img][/url]
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3248607572][img]https://steamuserimages-a.akamaihd.net/ugc/2477620729410521986/0E7C57C6A526D7284A0734A7F2B1C82A28F2BF66/?imw=5000&amp;imh=5000&amp;ima=fit&amp;impolicy=Letterbox&amp;imcolor=%23000000&amp;letterbox=false[/img][/url]
 [list]
 [*]Dig up ice, more ice is given if the cell has more ice in it, but it takes longer!
 [*]When you dig out ice, it leaves behind any water that wasn't frozen underneath (if any), allowing you to fish if you have a mod that allows it.
@@ -74,7 +74,7 @@ A: Use the "Clear Natural Water Status" tool (or a tool that includes this funct
 
 [h1]Compatibility[/h1]
 [list]
-[*]Designed to work with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2654088143]Soil Relocation Framework[/url]
+[*]Designed to work with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3248607572]Soil Relocation Framework[/url]
 [*]Proxy Heat: Should work just fine, designed with this in mind.
 [*]Celsius: Disable their freezing/melting system or they will conflict, should work just fine otherwise.
 [*]Tested and working with the Multiplayer mod!
@@ -84,12 +84,6 @@ A: Use the "Clear Natural Water Status" tool (or a tool that includes this funct
 [/list]
 
 Huge thanks to ZenthWolf, my official tester/troubleshooter, without whom it would take me longer to get patches out.
-
-[h1]Like my mods? Help me survive, lol.[/h1]
-Venmo: @UdderlyEvelyn
-Paypal: yushatak@gmail.com (I do not check this email, do not contact me through it!)
-Ko-Fi: http://ko-fi.com/UdderlyEvelyn
-Patreon: https://www.patreon.com/UdderlyEvelyn
 
 water freeze ice lake river ocean salt fresh thermodynamic simulation depth thickness dig gather freezer refrigerator
 
@@ -102,6 +96,8 @@ water freeze ice lake river ocean salt fresh thermodynamic simulation depth thic
 [*] Do not report errors by making a discussion-thread, I get no notification of that.
 [*] If you have the solution for a problem, please post it to the GitHub repository.
 [*] Use [url=https://github.com/RimSort/RimSort/releases/latest]RimSort[/url] to sort your mods
-[/list]</description>
-  <modVersion IgnoreIfNoMatchingField="True">1.5.1</modVersion>
+[/list]
+
+[url=https://steamcommunity.com/sharedfiles/filedetails/changelog/3278128973][img]https://img.shields.io/github/v/release/emipa606/WaterFreezes?label=latest%20version&amp;style=plastic&amp;color=9f1111&amp;labelColor=black[/img][/url]</description>
+  <modVersion IgnoreIfNoMatchingField="True">1.5.2</modVersion>
 </ModMetaData>

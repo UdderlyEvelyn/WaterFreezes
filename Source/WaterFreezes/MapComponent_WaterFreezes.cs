@@ -12,6 +12,7 @@ public class MapComponent_WaterFreezes : MapComponent
     //Game lowercases all packageIDs pulled at runtime. -UdderlyEvelyn 3/27/22
     public readonly List<string> BreakdownOrDestroyExceptedDefNames =
     [
+        "ludeon.rimworld.WaterproofConduit",
         "ludeon.rimworld.royalty.Shuttle",
         "ludeon.rimworld.royalty.ShuttleCrashed",
         "dubwise.dubsbadhygiene.sewagePipeStuff", //DBH Pipes
@@ -26,8 +27,7 @@ public class MapComponent_WaterFreezes : MapComponent
         "WFFT_NeedsDistance".Translate(), //If it's a fish trap or fish net trying to see if it's too close to itself.
         "RBB.TrapTooClose".Translate(), //If it's a shellfish trap trying to see if it's too close to itself.
         "RBB.FSTooClose".Translate(), //Fishing spot trying to see if it's too close to itself.
-        "VME_NeedsDistance"
-            .Translate()
+        "VME_NeedsDistance".Translate()
     ];
 
     public readonly List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = ["RimWorld.PlaceWorker_Conduit"];
