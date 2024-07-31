@@ -1,5 +1,8 @@
 # Changelog for WaterFreezes
 
+1.5.3 - Watermills should no longer break due to freezing, instead they will just stop
+
+
 1.5.2 - Waterproof conduits should no longer break due to freezing water
 
 

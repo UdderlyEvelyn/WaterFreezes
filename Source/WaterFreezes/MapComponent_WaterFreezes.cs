@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using HarmonyLib;
 using RimWorld;
 using Verse;
 
@@ -31,6 +32,7 @@ public class MapComponent_WaterFreezes : MapComponent
     ];
 
     public readonly List<string> BreakdownOrDestroyExceptedPlaceWorkerTypeStrings = ["RimWorld.PlaceWorker_Conduit"];
+
     private readonly int seasonLastUpdated = 0;
 
     public readonly float ThresholdIce = 50;
@@ -485,8 +487,8 @@ public class MapComponent_WaterFreezes : MapComponent
                 continue;
             }
 
-            //WaterFreezes.Log("Checking " + thing.def.modContentPack.PackageId + "." + thing.def.defName + " for destruction..");
-            //WaterFreezes.Log(thing.def.modContentPack.PackageId + "." + thing.def.defName);
+            //WaterFreezes.Log($"Checking {thing.def.modContentPack.PackageId}.{thing.def.defName} for destruction..");
+            //WaterFreezes.Log($"{thing.def.modContentPack.PackageId}.{thing.def.defName}");
             if (thing.questTags is { Count: > 0 } || //If it's marked for a quest..
                 thing.def.defName.StartsWith("Ancient") ||
                 thing.def.defName.StartsWith("VFEA_") || //If it's ancient stuff.
@@ -534,8 +536,16 @@ public class MapComponent_WaterFreezes : MapComponent
                 dueToAffordances = true;
             }
 
+            CompPowerPlantWater waterPlant;
+
             if (!shouldBreakdownOrDestroy)
             {
+                if (thing.TryGetComp(out waterPlant) &&
+                    !(bool)AccessTools.Field(typeof(CompPowerPlantWater), "waterUsable").GetValue(waterPlant))
+                {
+                    AccessTools.Method(typeof(CompPowerPlantWater), "RebuildCache").Invoke(waterPlant, []);
+                }
+
                 continue;
             }
 
@@ -543,6 +553,13 @@ public class MapComponent_WaterFreezes : MapComponent
 
             var flickable = twc.GetComp<CompFlickable>();
             var breakdown = twc.GetComp<CompBreakdownable>();
+
+            if (thing.TryGetComp(out waterPlant))
+            {
+                AccessTools.Field(typeof(CompPowerPlantWater), "waterUsable").SetValue(waterPlant, false);
+                continue; //Don´t destroy water-powerplants
+            }
+
             if (flickable != null && breakdown != null) //If it has both comps.
             {
                 if (!flickable.SwitchIsOn || breakdown.BrokenDown) //If it's on, and it isn't broken down.
