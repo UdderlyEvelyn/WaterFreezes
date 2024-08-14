@@ -1,5 +1,8 @@
 # Changelog for WaterFreezes
 
+1.5.4 - Water-wells from Dubs Bad Hygiene will no longer break due to ice
+
+
 1.5.3 - Watermills should no longer break due to freezing, instead they will just stop
 
 

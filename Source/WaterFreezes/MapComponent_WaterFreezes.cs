@@ -17,6 +17,8 @@ public class MapComponent_WaterFreezes : MapComponent
         "ludeon.rimworld.royalty.Shuttle",
         "ludeon.rimworld.royalty.ShuttleCrashed",
         "dubwise.dubsbadhygiene.sewagePipeStuff", //DBH Pipes
+        "dubwise.dubsbadhygiene.WaterWellInlet", //DBH Well
+        "dubwise.dubsbadhygiene.DeepWaterWellInlet", //DBH DeepWell
         "aelanna.arimreborn.core.ARR_AetherSpotWater", //A Rim Reborn Water Focus Spot
         "owlchemist.invisiblewalls.Owl_InvisibleWall",
         "somewhereoutinspace.spaceports.Spaceports_FuelProcessor"

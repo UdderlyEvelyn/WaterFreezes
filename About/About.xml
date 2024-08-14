@@ -24,6 +24,10 @@
   <description>[img]https://i.imgur.com/buuPQel.png[/img]
 Update of UdderlyEvelyns mod https://steamcommunity.com/sharedfiles/filedetails/?id=2728000958
 
+[list]
+[*] Watermills should now just stop when frozen and not break down
+[/list]
+
 [img]https://i.imgur.com/pufA0kM.png[/img]
 
 [table]
@@ -99,5 +103,5 @@ water freeze ice lake river ocean salt fresh thermodynamic simulation depth thic
 [/list]
 
 [url=https://steamcommunity.com/sharedfiles/filedetails/changelog/3278128973][img]https://img.shields.io/github/v/release/emipa606/WaterFreezes?label=latest%20version&amp;style=plastic&amp;color=9f1111&amp;labelColor=black[/img][/url]</description>
-  <modVersion IgnoreIfNoMatchingField="True">1.5.3</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">1.5.4</modVersion>
 </ModMetaData>
