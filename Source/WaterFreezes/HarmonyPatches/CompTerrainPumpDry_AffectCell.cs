@@ -17,7 +17,7 @@ public class CompTerrainPumpDry_AffectCell
     internal static void Postfix(Map map, IntVec3 c, ref TerrainDef __state)
     {
         var terrain = __state;
-        Log.Message(terrain.ToString());
+
         if (terrain != TerrainDefOf.WaterDeep &&
             terrain != TerrainDefOf.WaterShallow &&
             terrain != WaterDefs.Marsh &&

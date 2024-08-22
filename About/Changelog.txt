@@ -1,5 +1,8 @@
 # Changelog for WaterFreezes
 
+1.5.5 - Removed debug-logging
+
+
 1.5.4 - Water-wells from Dubs Bad Hygiene will no longer break due to ice
 
 
