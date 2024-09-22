@@ -46,6 +46,7 @@ public class MapComponent_WaterFreezes : MapComponent
     public TerrainDef[] AllWaterTerrainGrid;
     public float[] IceDepthGrid;
     public bool Initialized;
+    private int lastUpdatedCellIndex;
     public TerrainDef[] NaturalWaterTerrainGrid;
     public float[] PseudoWaterElevationGrid;
 
@@ -140,16 +141,36 @@ public class MapComponent_WaterFreezes : MapComponent
             Initialize(); //Initialize it!
         }
 
-        if (Find.TickManager.TicksGame % WaterFreezesSettings.IceRate != 0) //If it's not once per hour.
+        var totalCells = AllWaterTerrainGrid.Length;
+        if (totalCells == 0)
         {
-            return; //Don't execute the rest, throttling measure.
+            return; // No cells to update.
         }
 
-        for (var i = 0; i < AllWaterTerrainGrid.Length; ++i) //Thread this later, probably.
+        if (Find.TickManager.TicksGame % WaterFreezesSettings.IceRate == 0)
         {
-            var cell = map.cellIndices.IndexToCell(i);
-            var water = AllWaterTerrainGrid[i];
-            if (water == null) //If it's water we track.
+            lastUpdatedCellIndex = 0;
+        }
+
+        if (lastUpdatedCellIndex >= AllWaterTerrainGrid.Length)
+        {
+            return;
+        }
+
+        var cellsPerTick = Math.Max(1, totalCells / WaterFreezesSettings.IceRate);
+
+        for (var i = 0; i < cellsPerTick; ++i)
+        {
+            var cellIndex = (lastUpdatedCellIndex + i) % totalCells;
+            var cell = map.cellIndices.IndexToCell(cellIndex);
+            var water = AllWaterTerrainGrid[cellIndex];
+            if (water == null) // If it's water we track.
+            {
+                continue;
+            }
+
+            if (!WaterFreezesSettings.OceansFreeze &&
+                (water == TerrainDefOf.WaterOceanDeep || water == TerrainDefOf.WaterOceanShallow))
             {
                 continue;
             }
@@ -158,6 +179,8 @@ public class MapComponent_WaterFreezes : MapComponent
             UpdateIceForTemperature(cell, extension);
             UpdateIceStage(cell, extension);
         }
+
+        lastUpdatedCellIndex += cellsPerTick;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

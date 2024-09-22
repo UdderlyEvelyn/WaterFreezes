@@ -24,6 +24,33 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/TerrainDef[defName="WaterOceanShallow"]</xpath>
+    <value>
+      <li Class="WF.TerrainExtension_WaterStats">
+        <MaxWaterDepth>100</MaxWaterDepth>
+        <MaxIceDepth>100</MaxIceDepth>
+        <ThinIceDef>WF_OceanIceThin</ThinIceDef>
+        <IceDef>WF_OceanIce</IceDef>
+        <FreezingPoint>-10</FreezingPoint>
+        <IsMoving>true</IsMoving>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/TerrainDef[defName="WaterOceanDeep"]</xpath>
+    <value>
+      <li Class="WF.TerrainExtension_WaterStats">
+        <MaxWaterDepth>400</MaxWaterDepth>
+        <MaxIceDepth>120</MaxIceDepth>
+        <ThinIceDef>WF_OceanIceThin</ThinIceDef>
+        <IceDef>WF_OceanIce</IceDef>
+        <ThickIceDef>WF_OceanIceThick</ThickIceDef>
+        <FreezingPoint>-25</FreezingPoint>
+        <IsMoving>true</IsMoving>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/TerrainDef[defName="WaterMovingShallow"]</xpath>
     <value>
       <li Class="WF.TerrainExtension_WaterStats">

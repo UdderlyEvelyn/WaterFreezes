@@ -14,4 +14,6 @@
   <WFM.moisturePump>水分泵清除天然水</WFM.moisturePump>
   <WFM.moisturePumpDesc>如果启用，使用湿气泵将会阻止您抽取的水重新注入。我建议改用土壤重置框架的注水功能！</WFM.moisturePumpDesc>
   <WFM.modVersion>已安装模块版本：{0}</WFM.modVersion>
+  <WFM.oceansFreeze>海洋会结冰</WFM.oceansFreeze>
+  <WFM.oceansFreezeDesc>如果温度足够低，海洋也会结冰</WFM.oceansFreezeDesc>
 </LanguageData>

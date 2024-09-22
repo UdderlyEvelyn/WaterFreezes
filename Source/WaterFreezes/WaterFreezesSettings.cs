@@ -4,6 +4,7 @@ namespace WF;
 
 public class WaterFreezesSettings : ModSettings
 {
+    public static bool OceansFreeze;
     public static int IceRate = 1000;
     public static float FreezingFactor = 4f;
     public static float ThawingFactor = 2f;
@@ -15,6 +16,7 @@ public class WaterFreezesSettings : ModSettings
         Scribe_Values.Look(ref FreezingFactor, "FreezingFactor", 4f);
         Scribe_Values.Look(ref ThawingFactor, "ThawingFactor", 2f);
         Scribe_Values.Look(ref MoisturePumpClearsNaturalWater, "MoisturePumpClearsNaturalWater");
+        Scribe_Values.Look(ref OceansFreeze, "OceansFreeze");
 
         base.ExposeData();
     }

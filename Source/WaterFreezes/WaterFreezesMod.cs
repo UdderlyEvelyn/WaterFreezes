@@ -39,6 +39,8 @@ public class WaterFreezesMod : Mod
             ref _thawingDivisorBuffer, 1);
         listingStandard.CheckboxLabeled("WFM.moisturePump".Translate(),
             ref WaterFreezesSettings.MoisturePumpClearsNaturalWater, "WFM.moisturePumpDesc".Translate());
+        listingStandard.CheckboxLabeled("WFM.oceansFreeze".Translate(),
+            ref WaterFreezesSettings.OceansFreeze, "WFM.oceansFreezeDesc".Translate());
         if (currentVersion != null)
         {
             listingStandard.Gap();

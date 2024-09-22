@@ -7,6 +7,8 @@ Anything higher than 2500 (1 in-game hour) has not been tested. Default is 1000 
 Versions before this setting was introduced had it set to 2500.</WFM.tickInfo>
   <WFM.multiplierInfo>Take care when modifying the multiplier and divisor, relatively small changes will produce big effects!
 The temperature is multiplied by this value before going into other calculations to produce the amount of freezing that occurs below freezing.</WFM.multiplierInfo>
+  <WFM.oceansFreeze>Oceans can freeze</WFM.oceansFreeze>
+  <WFM.oceansFreezeDesc>If the temperature is low enough, the ocean can freeze as well</WFM.oceansFreezeDesc>
   <WFM.freezingFactor>Freezing Factor</WFM.freezingFactor>
   <WFM.freezingFactorDesc>The (negated) temperature is divided by this value before going into other calculations to produce the amount of thawing that occurs above freezing.</WFM.freezingFactorDesc>
   <WFM.thawingFactor>Thawing Factor</WFM.thawingFactor>
