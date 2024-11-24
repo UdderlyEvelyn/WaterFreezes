@@ -1,0 +1,21 @@
+# Changelog for WaterFreezes
+
+1.5.6 - Added option for oceans to freeze, at a lower temperature. Cells should now update more spread out instead of all at once every x ticks
+Used DeepL to update translations for ChineseSimplified, French, German
+
+
+1.5.5 - Removed debug-logging
+
+
+1.5.4 - Water-wells from Dubs Bad Hygiene will no longer break due to ice
+
+
+1.5.3 - Watermills should no longer break due to freezing, instead they will just stop
+
+
+1.5.2 - Waterproof conduits should no longer break due to freezing water
+
+
+1.5.1 - Updated for 1.5
+Used DeepL to update translations for ChineseSimplified, French, German
+
