@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-  <!--Lake Ice-->
-  <TerrainDef ParentName="NaturalTerrainBase">
+
+<!--Lake Ice-->
+
+ <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIceThin</defName>
     <label>Lake Ice</label>
     <texturePath>IceThin</texturePath>
@@ -22,7 +24,8 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
-  <TerrainDef ParentName="NaturalTerrainBase">
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIce</defName>
     <label>Lake Ice</label>
     <texturePath>Ice</texturePath>
@@ -44,7 +47,8 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
-  <TerrainDef ParentName="NaturalTerrainBase">
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_LakeIceThick</defName>
     <label>Lake Ice</label>
     <texturePath>IceThick</texturePath>
@@ -67,7 +71,9 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
+  
   <!--Marsh Ice-->
+  
   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_MarshIceThin</defName>
     <label>Marsh Ice</label>
@@ -89,7 +95,8 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
-  <TerrainDef ParentName="NaturalTerrainBase">
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_MarshIce</defName>
     <label>Marsh Ice</label>
     <texturePath>MarshIce</texturePath>
@@ -111,8 +118,10 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
+  
   <!--River Ice-->
-  <TerrainDef ParentName="NaturalTerrainBase">
+
+ <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_RiverIceThin</defName>
     <label>River Ice</label>
     <texturePath>IceThin</texturePath>
@@ -133,7 +142,8 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
-  <TerrainDef ParentName="NaturalTerrainBase">
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_RiverIce</defName>
     <label>River Ice</label>
     <texturePath>Ice</texturePath>
@@ -155,7 +165,8 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
-  <TerrainDef ParentName="NaturalTerrainBase">
+  
+   <TerrainDef ParentName="NaturalTerrainBase">
     <defName>WF_RiverIceThick</defName>
     <label>River Ice</label>
     <texturePath>IceThick</texturePath>
@@ -178,4 +189,5 @@
     <fertility>0.00</fertility>
     <takeFootprints>True</takeFootprints>
   </TerrainDef>
+
 </Defs>
